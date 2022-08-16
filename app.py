@@ -255,7 +255,8 @@ def webhook():
             elif ROI<100:
                 ROI=round(ROI_val-100,2)            
             print("Margin ROI%=",ROI)
-            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            print("Profit = ",profit)
+            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"+"\nProfit   :" + str(round(profit,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": CloseLong")
 
@@ -295,9 +296,10 @@ def webhook():
                 ROI=round(100-ROI_val,2)
             elif ROI<100:
                 ROI=round(ROI_val-100,2)            
-            print("Margin ROI%=",ROI)            
+            print("Margin ROI%=",ROI)      
+            print("Profit = ",profit)
             #success close buy, push line notification                    
-            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"+"\nProfit   :" + str(round(profit,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": CloseShort")
 
@@ -305,7 +307,7 @@ def webhook():
         print("TEST!")
         print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
         print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount:" + str(posiAmtL) + "\n hort Position amount:" + str(posiAmtS)
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount:" + str(posiAmtL) + "\n hort Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------------")
