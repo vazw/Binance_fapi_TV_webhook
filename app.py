@@ -305,7 +305,7 @@ def webhook():
         print("TEST!")
         print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
         print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount:" + str(posiAmtL) + "\n hort Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount:" + str(posiAmtL) + "\n Short Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------------")
