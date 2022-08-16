@@ -188,7 +188,7 @@ def webhook():
         #check if sell in @ or fiat
         if amount[0]=='@':            
             fiat=float(amount[1:len(amount)])
-            Qty_sell=round(fiat,qty_precision)
+            Qty_sell= -1*round(fiat,qty_precision)
             usdt=round(fiat*ask,qty_precision)
             print("SELL/SHORT by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
         if amount[0]=='$':
@@ -236,7 +236,7 @@ def webhook():
                 print("SELL/CloseLong by USDT amount=", usdt, ">> COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
-                qty_close=round(fiat,qty_precision)
+                qty_close= -1*round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
                 print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
             print("CF>>", symbol,">>", action, ">> Qty=", qty_close, " ", COIN,">>USDT=", round(usdt,3))                    
@@ -277,7 +277,7 @@ def webhook():
                 print("BUY/CloseShort by USDT amount=", usdt, ">> COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
-                qty_close=round(fiat,qty_precision)
+                qty_close = -1*round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
                 print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
             print("CF>>", symbol,">>",action, ">>Qty=",qty_close, " ", COIN,">>USDT=", round(usdt,3))
