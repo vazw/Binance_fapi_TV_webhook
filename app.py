@@ -160,7 +160,7 @@ def webhook():
         print('qty buy : ',Qty_buy)
         client.futures_change_leverage(symbol=symbol,leverage=lev) 
         print('leverage : ',lev)
-        order_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='BUY', type='MARKET', quantity=Qty_buy)        
+        order_BUY = client.futures_create_order(symbol=symbol, side='BUY', positionSide='LONG', type='MARKET', quantity=Qty_buy)        
         print(symbol," : BUY")        
         time.sleep(1)
         #get entry price to find margin value
@@ -199,7 +199,7 @@ def webhook():
         client.futures_change_leverage(symbol=symbol,leverage=lev)
         print('leverage : ',lev)
         
-        order_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='SELL', type='MARKET', quantity=Qty_sell)
+        order_SELL = client.futures_create_order(symbol=symbol, side='SELL', positionSide='SHORT', type='MARKET', quantity=Qty_sell)
         print(symbol,": SELL")
         time.sleep(1)
         #get entry price to find margin value
@@ -235,7 +235,7 @@ def webhook():
             print("CF>>", symbol,">>", action, ">> Qty=", qty_close, " ", COIN,">>USDT=", round(usdt,3))                    
             leverage = float(client.futures_position_information(symbol=symbol)[0]['leverage'])  
             entryP=float(client.futures_position_information(symbol=symbol)[0]['entryPrice'])*qty_close
-            close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity=qty_close)            
+            close_BUY = client.futures_create_order(symbol=symbol, side='SELL', positionSide='LONG', type='MARKET', quantity=qty_close)            
             time.sleep(1)
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
@@ -271,7 +271,7 @@ def webhook():
             print("CF>>", symbol,">>",action, ">>Qty=",qty_close, " ", COIN,">>USDT=", round(usdt,3))
             leverage = float(client.futures_position_information(symbol=symbol)[0]['leverage'])              
             entryP=float(client.futures_position_information(symbol=symbol)[0]['entryPrice'])*qty_close
-            close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity=qty_close*-1)                        
+            close_SELL = client.futures_create_order(symbol=symbol, side='BUY', positionSide='SHORT', type='MARKET', quantity=qty_close*-1)                        
             time.sleep(1)    
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
