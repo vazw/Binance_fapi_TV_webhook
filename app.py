@@ -1,19 +1,3 @@
-#the following is the cryto trade bot and compatible with the follwing strategy message
-#var string bar1 = '════════ Password and Leverage ════════'
-#leveragex                = input.string("20",group=bar1)
-#passphrase ="1234"
-#string Alert_OpenLong       = '{"side": "OpenLong", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#string Alert_OpenShort      = '{"side": "OpenShort", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#string Alert_LongTP         = '{"side": "CloseLong", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#string Alert_ShortTP        = '{"side": "CloseShort", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#var message_closelong       = '{"side": "CloseLong", "amount": "%100", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#var message_closeshort      = '{"side": "CloseShort", "amount": "%100", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#string Alert_StopLosslong   = '{"side": "CloseLong", "amount": "%100", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#string Alert_StopLossshort  = '{"side": "CloseShort", "amount": "%100", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
-#Sample payload = '{"side":"OpenShort","amount":"@0.006","symbol":"BTCUSDTPERP","passphrase":"1945","leverage":"125"}'
-#mod and dev by DR.AKN
-
-#feature
 import json
 import sys
 import time
@@ -133,8 +117,10 @@ def webhook():
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
         
-    posiAmt = float(client.futures_position_information(symbol=symbol)[0]['positionAmt'])
-    print("100% Position amount>>",float(client.futures_position_information(symbol=symbol)[0]['positionAmt']))
+    posiAmtl = float(client.futures_position_information(symbol=symbol,positionSide='LONG')[0]['positionAmt'])
+    posiAmts = float(client.futures_position_information(symbol=symbol,positionSide='SHORT')[0]['positionAmt'])
+    print("100% Position amount>>",float(client.futures_position_information(symbol=symbol,positionSide='LONG')[0]['positionAmt']))
+    print("100% Position amount>>",float(client.futures_position_information(symbol=symbol,positionSide='SHORT')[0]['positionAmt']))
         
     #List of action OpenLong=BUY, OpenShort=SELL, StopLossLong, StopLossShort, CloseLong=LongTP, CloseShort=ShortTP, CloseLong, CloseShort, 
     #OpenLong/BUY    
@@ -217,7 +203,7 @@ def webhook():
 
         
     if action == "CloseLong":
-        if posiAmt > 0.0 :
+        if posiAmtl > 0.0 :
             qty_precision = 0
             for j in client.futures_exchange_info()['symbols']:
                 if j['symbol'] == symbol:
@@ -253,7 +239,7 @@ def webhook():
             print(symbol,": CloseLong")
 
     if action == "CloseShort":
-        if posiAmt < 0.0 :
+        if posiAmts < 0.0 :
             qty_precision = 0
             for j in client.futures_exchange_info()['symbols']:
                 if j['symbol'] == symbol:
