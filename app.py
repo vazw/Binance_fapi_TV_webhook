@@ -275,6 +275,11 @@ def webhook():
                 usdt=float(amount[1:len(amount)])
                 qty_close = -1*round(usdt/bid,qty_precision)
                 print("BUY/CloseShort by USDT amount=", usdt, ">> COIN", round(qty_close,3))
+            if amount[0]=='@':            
+                fiat=float(amount[1:len(amount)])
+                qty_close=round(fiat,qty_precision)
+                usdt=round(fiat*ask,qty_precision)
+                print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
             print("CF>>", symbol,">>",action, ">>Qty=",qty_close, " ", COIN,">>USDT=", round(usdt,3))
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
             entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])*qty_close
@@ -300,7 +305,7 @@ def webhook():
         print("TEST!")
         print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
         print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest..\n Long Position amount>>" + str(posiAmtL) + "\n hort Position amount>>" + str(posiAmtS)
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount>>" + str(posiAmtL) + "\n hort Position amount>>" + str(posiAmtS)
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------------")
