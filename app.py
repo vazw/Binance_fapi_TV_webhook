@@ -133,10 +133,10 @@ def webhook():
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
 
-    posiAmtL = float(client.futures_position_information(symbol=symbol)[0]['positionAmt'])
-    posiAmtS = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
-    print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[0]['positionAmt']))
-    print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+    posiAmtL = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
+    posiAmtS = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
+    print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+    print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
 
     #List of action OpenLong=BUY, OpenShort=SELL, StopLossLong, StopLossShort, CloseLong=LongTP, CloseShort=ShortTP, CloseLong, CloseShort, 
     #OpenLong/BUY    
@@ -166,7 +166,7 @@ def webhook():
         print(symbol," : BUY")        
         time.sleep(1)
         #get entry price to find margin value
-        entryP=float(client.futures_position_information(symbol=symbol)[0]['entryPrice'])
+        entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
         print("entryP=",entryP)
         margin=entryP*Qty_buy/lev
         #success openlong, push line notification        
@@ -205,7 +205,7 @@ def webhook():
         print(symbol,": SELL")
         time.sleep(1)
         #get entry price to find margin value
-        entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
+        entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
         print("entryP=",entryP)
         margin=entryP*Qty_sell/lev
         #success openlong, push line notification        
@@ -240,8 +240,8 @@ def webhook():
                 usdt=round(fiat*ask,qty_precision)
                 print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
             print("CF>>", symbol,">>", action, ">> Qty=", qty_close, " ", COIN,">>USDT=", round(usdt,3))                    
-            leverage = float(client.futures_position_information(symbol=symbol)[0]['leverage'])  
-            entryP=float(client.futures_position_information(symbol=symbol)[0]['entryPrice'])*qty_close
+            leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage'])  
+            entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])*qty_close
             close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity=qty_close)            
             time.sleep(1)
             #success close sell, push line notification                    
@@ -276,8 +276,8 @@ def webhook():
                 qty_close = -1*round(usdt/bid,qty_precision)
                 print("BUY/CloseShort by USDT amount=", usdt, ">> COIN", round(qty_close,3))
             print("CF>>", symbol,">>",action, ">>Qty=",qty_close, " ", COIN,">>USDT=", round(usdt,3))
-            leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage'])              
-            entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])*qty_close
+            leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
+            entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])*qty_close
             close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity=qty_close*-1)                        
             time.sleep(1)    
             #success close sell, push line notification                    
@@ -298,8 +298,8 @@ def webhook():
 
     if action == "test":
         print("TEST!")
-        print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[0]['positionAmt']))
-        print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+        print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+        print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest..\n Long Position amount>>" + str(posiAmtL) + "\n hort Position amount>>" + str(posiAmtS)
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
