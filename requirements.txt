@@ -1,0 +1,4 @@
+flask
+gunicorn
+python-binance
+requests
