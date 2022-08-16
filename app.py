@@ -83,13 +83,13 @@ def webhook():
 
     if amount[0]=='@':
         fiat=float(amount[1:len(amount)])
-        print("COIN>>",symbol, " : ",action," : amount=",fiat," : leverage=" , lev)
+        print("COIN:",symbol, " : ",action," : amount=",fiat," : leverage=" , lev)
     if amount[0]=='$':
         usdt=float(amount[1:len(amount)])
-        print("USDT>>",symbol, " : ",action," : amount=",usdt," : leverage=" , lev)
+        print("USDT:",symbol, " : ",action," : amount=",usdt," : leverage=" , lev)
     if amount[0]=='%':
         percent= float(amount[1:len(amount)])
-        print("Percent>>",symbol, " : ",action," : amount=",percent," : leverage=" , lev)
+        print("Percent:",symbol, " : ",action," : amount=",percent," : leverage=" , lev)
 
     print('amount=',amount)
     print('fiat=',fiat)
@@ -135,8 +135,8 @@ def webhook():
 
     posiAmtL = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
     posiAmtS = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
-    print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
-    print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
+    print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+    print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
 
     #List of action OpenLong=BUY, OpenShort=SELL, StopLossLong, StopLossShort, CloseLong=LongTP, CloseShort=ShortTP, CloseLong, CloseShort, 
     #OpenLong/BUY    
@@ -152,12 +152,12 @@ def webhook():
             fiat=float(amount[1:len(amount)])
             Qty_buy=round(fiat,qty_precision)
             usdt=round(fiat*bid,qty_precision)
-            print("BUY/LONG by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
+            print("BUY/LONG by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
         if amount[0]=='$':
             usdt=float(amount[1:len(amount)])
             Qty_buy = round(usdt/bid,qty_precision)
-            print("BUY/LONG by USDT amount=", usdt, ">> COIN", round(usdt,30))
-        print("CF>>", symbol,">>",action, ">>Qty=",Qty_buy, " ", COIN,">>USDT=", round(usdt,3))
+            print("BUY/LONG by USDT amount=", usdt, ": COIN", round(usdt,30))
+        print("CF:", symbol,":",action, ":Qty=",Qty_buy, " ", COIN,":USDT=", round(usdt,3))
         Qty_buy = round(Qty_buy,qty_precision)
         print('qty buy : ',Qty_buy)
         client.futures_change_leverage(symbol=symbol,leverage=lev) 
@@ -190,12 +190,12 @@ def webhook():
             fiat=float(amount[1:len(amount)])
             Qty_sell= -1*round(fiat,qty_precision)
             usdt=round(fiat*ask,qty_precision)
-            print("SELL/SHORT by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
+            print("SELL/SHORT by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
         if amount[0]=='$':
             usdt=float(amount[1:len(amount)])
             Qty_sell = round(usdt/ask,qty_precision)
-            print("SELL/SHORT by USDT amount=", usdt, ">> COIN", round(usdt,30))
-        print("CF>>", symbol,">>", action, ">> Qty=", Qty_sell, " ", COIN,">>USDT=", round(usdt,3))
+            print("SELL/SHORT by USDT amount=", usdt, ": COIN", round(usdt,30))
+        print("CF:", symbol,":", action, ": Qty=", Qty_sell, " ", COIN,":USDT=", round(usdt,3))
         Qty_sell = round(Qty_sell,qty_precision)
         print('qty sell : ',Qty_sell)
         client.futures_change_leverage(symbol=symbol,leverage=lev)
@@ -229,17 +229,17 @@ def webhook():
             if amount[0]=='%':            
                 qty_close=round(percent*posiAmtL/100,qty_precision)                
                 usdt=round(qty_close*ask,qty_precision)                
-                print("SELL/CloseLong by % amount=", qty_close, " ", COIN, ">> USDT=",round(usdt,3))
+                print("SELL/CloseLong by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
                 usdt=float(amount[1:len(amount)])                
                 qty_close = round(usdt/ask,qty_precision)                
-                print("SELL/CloseLong by USDT amount=", usdt, ">> COIN", round(qty_close,3))
+                print("SELL/CloseLong by USDT amount=", usdt, ": COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
                 qty_close= -1*round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
-                print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
-            print("CF>>", symbol,">>", action, ">> Qty=", qty_close, " ", COIN,">>USDT=", round(usdt,3))                    
+                print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+            print("CF:", symbol,":", action, ": Qty=", qty_close, " ", COIN,":USDT=", round(usdt,3))                    
             leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage'])  
             entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])*qty_close
             close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity=qty_close)            
@@ -270,17 +270,17 @@ def webhook():
             if amount[0]=='%':            
                 qty_close=round(percent*posiAmtS/100,qty_precision)
                 usdt=round(qty_close*bid,qty_precision)
-                print("BUY/CloseShort by % amount=", qty_close, " ", COIN, ">> USDT=",round(usdt,3))
+                print("BUY/CloseShort by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
                 usdt=float(amount[1:len(amount)])
                 qty_close = -1*round(usdt/bid,qty_precision)
-                print("BUY/CloseShort by USDT amount=", usdt, ">> COIN", round(qty_close,3))
+                print("BUY/CloseShort by USDT amount=", usdt, ": COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
                 qty_close = -1*round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
-                print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ">> USDT=",round(usdt,3))
-            print("CF>>", symbol,">>",action, ">>Qty=",qty_close, " ", COIN,">>USDT=", round(usdt,3))
+                print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+            print("CF:", symbol,":",action, ":Qty=",qty_close, " ", COIN,":USDT=", round(usdt,3))
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
             entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])*qty_close
             close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity=qty_close*-1)                        
@@ -303,9 +303,9 @@ def webhook():
 
     if action == "test":
         print("TEST!")
-        print("Long Position amount>>",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
-        print("Short Position amount>>",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount>>" + str(posiAmtL) + "\n hort Position amount>>" + str(posiAmtS)
+        print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+        print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount:" + str(posiAmtL) + "\n hort Position amount:" + str(posiAmtS)
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------------")
@@ -317,3 +317,6 @@ def webhook():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+#Compatible with VXD Cloud Edition Tradingview by Vaz
