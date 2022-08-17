@@ -173,12 +173,12 @@ def webhook():
                 print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
             print("CF:", symbol,":",action, ":Qty=",qty_close, " ", COIN,":USDT=", round(usdt,3))
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
-            entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])*qty_close
+            entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
             close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity=qty_close*-1)                        
             time.sleep(1)    
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            margin=-1*entryP/leverage
+            margin= -1*posiAmt*entryP/leverage
             ROI_val=100*unpnl/margin 
             ROI=0
             if ROI>=100:
@@ -217,12 +217,12 @@ def webhook():
                 print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
             print("CF:", symbol,":", action, ": Qty=", qty_close, " ", COIN,":USDT=", round(usdt,3))                    
             leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage'])  
-            entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])*qty_close
+            entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
             close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity=qty_close)            
             time.sleep(1)
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            margin=entryP/leverage
+            margin= posiAmt*entryP/leverage
             ROI_val=100*unpnl/margin 
             ROI=0
             if ROI>=100:
