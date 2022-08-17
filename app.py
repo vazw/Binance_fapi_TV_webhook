@@ -50,6 +50,7 @@ def hello_world():
 def webhook():
     data = json.loads(request.data)
     print("decoding data...")
+    passphrase = data['passphrase']
     if passphrase != SECRET_KEY:
         print("Invalid SECRET KEY/PASSPHRASE")
         return {
@@ -62,7 +63,6 @@ def webhook():
         action = data['side']
         amount = data['amount']
         symbol = data['symbol']
-        passphrase = data['passphrase']
         lev = data['leverage']
 
     else:
