@@ -1,7 +1,7 @@
 #the following is the cryto trade bot and compatible with the follwing strategy message
-#var string bar1 = '════════ Password and Leverage ════════'
-#leveragex                = input.string("20",group=bar1)
-#passphrase ="1234"
+
+#passphrase = input.string(defval='xxxx', title ='Bot Pass',group='═ Bot Setting ═')
+#leveragex  = input.int(125,title='leverage',group='═ Bot Setting ═',tooltip='"NOTHING" to do with Position size',minval=1)
 #string Alert_OpenLong       = '{"side": "OpenLong", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
 #string Alert_OpenShort      = '{"side": "OpenShort", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
 #string Alert_LongTP         = '{"side": "CloseLong", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
@@ -12,6 +12,7 @@
 #string Alert_StopLossshort  = '{"side": "CloseShort", "amount": "%100", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
 #Sample payload = '{"side":"OpenShort","amount":"@0.006","symbol":"BTCUSDTPERP","passphrase":"1945","leverage":"125"}'
 #mod and dev by DR.AKN
+#Compatible with VXD Cloud Edition Tradingview by Vaz
 
 #feature
 import json
@@ -302,10 +303,14 @@ def webhook():
             print(symbol,": CloseShort")
 
     if action == "test":
-        print("TEST!")
+        print("TEST! >> Pull position amount")
         print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+        print("and should be Matched:",posiAmtL)
         print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest!!!\n Long Position amount:" + str(posiAmtL) + "\n Short Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
+        print("and should be  matched:",posiAmtS)
+        print("If position amount is = your real position in binance you are good to GO!")
+        print("If something is off please re-check the all setting.")
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest! \nPull position amount\nLong Position amount:" + str(posiAmtL) + "\nShort Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------------")
@@ -317,6 +322,3 @@ def webhook():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-#Compatible with VXD Cloud Edition Tradingview by Vaz
