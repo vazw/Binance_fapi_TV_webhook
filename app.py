@@ -179,12 +179,7 @@ def webhook():
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
             margin= -1*posiAmt*entryP/leverage
-            ROI_val=100*unpnl/margin 
-            ROI=0
-            if ROI>=100:
-                ROI=round(100-ROI_val,2)
-            elif ROI<100:
-                ROI=round(ROI_val-100,2)            
+            ROI=100*unpnl/margin            
             print("Margin ROI%=",ROI)            
             #success close buy, push line notification                    
             msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(unpnl,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
@@ -223,12 +218,7 @@ def webhook():
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
             margin= posiAmt*entryP/leverage
-            ROI_val=100*unpnl/margin 
-            ROI=0
-            if ROI>=100:
-                ROI=round(100-ROI_val,2)
-            elif ROI<100:
-                ROI=round(ROI_val-100,2)            
+            ROI=100*unpnl/margin            
             print("Margin ROI%=",ROI)
             msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(unpnl,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
