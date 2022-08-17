@@ -150,6 +150,7 @@ def webhook():
     #CloseShort/BUY
     if action == "CloseShort":
         posiAmt = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
+        unpnl = float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])
         if posiAmt < 0.0 :
             qty_precision = 0
             for j in client.futures_exchange_info()['symbols']:
@@ -177,9 +178,8 @@ def webhook():
             time.sleep(1)    
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            profit = new_balance-balance
             margin=-1*entryP/leverage
-            ROI_val=100*profit/margin 
+            ROI_val=100*unpnl/margin 
             ROI=0
             if ROI>=100:
                 ROI=round(100-ROI_val,2)
@@ -187,13 +187,14 @@ def webhook():
                 ROI=round(ROI_val-100,2)            
             print("Margin ROI%=",ROI)            
             #success close buy, push line notification                    
-            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(unpnl,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": CloseShort")
     
     #CloseLong/SELL
     if action == "CloseLong":
         posiAmt = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
+        unpnl = float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])
         if posiAmt > 0.0 :
             qty_precision = 0
             for j in client.futures_exchange_info()['symbols']:
@@ -221,16 +222,15 @@ def webhook():
             time.sleep(1)
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            profit = new_balance-balance
             margin=entryP/leverage
-            ROI_val=100*profit/margin 
+            ROI_val=100*unpnl/margin 
             ROI=0
             if ROI>=100:
                 ROI=round(100-ROI_val,2)
             elif ROI<100:
                 ROI=round(ROI_val-100,2)            
             print("Margin ROI%=",ROI)
-            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(unpnl,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": CloseLong")
         
@@ -309,20 +309,22 @@ def webhook():
         msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[SHORT]" + "\nAmount  :" + str(Qty_sell) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nPaid        :" + str(round(paid,2)) + " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})
     
-    #test
+    #test unRealizedProfit
     if action == "test":
         print("TEST! >> Pull position info")     
         print("---------------------------")
         print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
-        print("Long Entry Price",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
+        print("Long Entry Price:",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
+        print("Long Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),"USDT")
         print("---------------------------")
         print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        print("Short Entry Price",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
+        print("Short Entry Price:",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
+        print("Short Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),"USDT")
         print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
         print("---------------------------")
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest! \nPull position info\nLong Position amount:" + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))+ "\nLong Entry Price:"+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) + "\nShort Position amount:" + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])) + "\nShort Entry Price:"+ str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])) + "\nBalance   :" + str(round(balance,2)) + " USDT"
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest! \nPull position info for" + COIN +"/USDT" +"\nLong Position amount:" + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))+ "\nLong Entry Price:"+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))+ "\nLong Unrealized PNL:" + float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']) + "USDT" + "\nShort Position amount:" + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])) + "\nShort Entry Price:"+ str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "Short Unrealized PNL:"+float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])+"USDT" + "\nBalance   :" + str(round(balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------COMPLETED---------------------------")
