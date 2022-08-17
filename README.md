@@ -1,6 +1,6 @@
 # tradingview-alert-webhook for binance-api (one-way mode)
 TradingView Strategy Alert Webhook that buys and sells crypto with the Binance API
-This script work only on one-way mode please disable Hegde mode or bot won't working.
+This script work only on Binance Future Hegde mode mode  or bot won't working.
 # Script is compatible with the follwing strategy message
 passphrase = input.string(defval='xxxx', title ='Bot Pass',group='═ Bot Setting ═')
 leveragex  = input.int(125,title='leverage',group='═ Bot Setting ═',tooltip='"NOTHING" to do with Position size',minval=1)
@@ -26,4 +26,4 @@ string Alert_StopLossshort  = '{"side": "CloseShort", "amount": "%100", "symbol"
 # YouTube tutorial on how to use this code (Thai)
 https://youtu.be/-4gHb5PiC2I
 #mod and dev by DR.AKN
-
+#Compatible with VXD Cloud Edition Tradingview by Vaz
