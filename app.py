@@ -137,92 +137,17 @@ def webhook():
         "code" : "fail",
         "message" : "Margin-CALL"
         }
+    
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
 
     print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
     print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
 
-    #List of action OpenLong=BUY, OpenShort=SELL, StopLossLong, StopLossShort, CloseLong=LongTP, CloseShort=ShortTP, CloseLong, CloseShort, 
-    #OpenLong/BUY    
+    #List of action OpenLong=BUY, OpenShort=SELL, CloseLong=SELL, CloseShort=BUY
     new_balance=0
-    #if action == "OpenLong" and usdt>0:
-    if action == "OpenLong" :
-        qty_precision = 0
-        for j in client.futures_exchange_info()['symbols']:
-            if j['symbol'] == symbol:
-                qty_precision = int(j['quantityPrecision'])
-        #check if buy in @ or fiat
-        if amount[0]=='@':            
-            fiat=float(amount[1:len(amount)])
-            Qty_buy=round(fiat,qty_precision)
-            usdt=round(fiat*bid,qty_precision)
-            print("BUY/LONG by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
-        if amount[0]=='$':
-            usdt=float(amount[1:len(amount)])
-            Qty_buy = round(usdt/bid,qty_precision)
-            print("BUY/LONG by USDT amount=", usdt, ": COIN", round(usdt,30))
-        print("CF:", symbol,":",action, ":Qty=",Qty_buy, " ", COIN,":USDT=", round(usdt,3))
-        Qty_buy = round(Qty_buy,qty_precision)
-        print('qty buy : ',Qty_buy)
-        client.futures_change_leverage(symbol=symbol,leverage=lev) 
-        print('leverage : ',lev)
-        order_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='BUY', type='MARKET', quantity=Qty_buy)        
-        print(symbol," : BUY")        
-        time.sleep(1)
-        #get entry price to find margin value
-        entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
-        print("entryP=",entryP)
-        margin=entryP*Qty_buy/lev
-        #success openlong, push line notification        
-        new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-        print("Old Balance=",balance)
-        print("New Balance=",new_balance)
-        paid=balance-new_balance
-        #paid=usdt/lev
-        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[BUY]" + "\nAmount  :" + str(Qty_buy) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nPaid        :" + str(round(paid,2)) + " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
-        r = requests.post(url, headers=headers, data = {'message':msg})
-
-    #OpenShort/SELL
-    #if action == "OpenShort" and usdt > 0:        
-    if action == "OpenShort" :                
-        qty_precision = 0
-        for j in client.futures_exchange_info()['symbols']:
-            if j['symbol'] == symbol:
-                qty_precision = int(j['quantityPrecision'])
-        #check if sell in @ or fiat
-        if amount[0]=='@':            
-            fiat=float(amount[1:len(amount)])
-            Qty_sell= round(fiat,qty_precision)
-            usdt=round(fiat*ask,qty_precision)
-            print("SELL/SHORT by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
-        if amount[0]=='$':
-            usdt=float(amount[1:len(amount)])
-            Qty_sell = round(usdt/ask,qty_precision)
-            print("SELL/SHORT by USDT amount=", usdt, ": COIN", round(usdt,30))
-        print("CF:", symbol,":", action, ": Qty=", Qty_sell, " ", COIN,":USDT=", round(usdt,3))
-        Qty_sell = round(Qty_sell,qty_precision)
-        print('qty sell : ',Qty_sell)
-        client.futures_change_leverage(symbol=symbol,leverage=lev)
-        print('leverage : ',lev)
-
-        order_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='SELL', type='MARKET', quantity=Qty_sell)
-        print(symbol,": SELL")
-        time.sleep(1)
-        #get entry price to find margin value
-        entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
-        print("entryP=",entryP)
-        margin=entryP*Qty_sell/lev
-        #success openlong, push line notification        
-        new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-        print("Old Balance=",balance)
-        print("New Balance=",new_balance)
-        paid=balance-new_balance        #paid=usdt/lev
-        #success openshort, push line notification        
-        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[SHORT]" + "\nAmount  :" + str(Qty_sell) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nPaid        :" + str(round(paid,2)) + " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
-        r = requests.post(url, headers=headers, data = {'message':msg})
-
-
+    
+    #CloseLong/SELL
     if action == "CloseLong":
         posiAmt = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
         if posiAmt > 0.0 :
@@ -264,7 +189,8 @@ def webhook():
             msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": CloseLong")
-
+    
+    #CloseShort/BUY
     if action == "CloseShort":
         posiAmt = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
         if posiAmt < 0.0 :
@@ -307,7 +233,83 @@ def webhook():
             msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive    :" + str(round(profit,2)) + " USDT" + "\nROI           :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": CloseShort")
+    
+    #OpenLong/BUY
+    if action == "OpenLong" :
+        qty_precision = 0
+        for j in client.futures_exchange_info()['symbols']:
+            if j['symbol'] == symbol:
+                qty_precision = int(j['quantityPrecision'])
+        #check if buy in @ or fiat
+        if amount[0]=='@':            
+            fiat=float(amount[1:len(amount)])
+            Qty_buy=round(fiat,qty_precision)
+            usdt=round(fiat*bid,qty_precision)
+            print("BUY/LONG by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+        if amount[0]=='$':
+            usdt=float(amount[1:len(amount)])
+            Qty_buy = round(usdt/bid,qty_precision)
+            print("BUY/LONG by USDT amount=", usdt, ": COIN", round(usdt,30))
+        print("CF:", symbol,":",action, ":Qty=",Qty_buy, " ", COIN,":USDT=", round(usdt,3))
+        Qty_buy = round(Qty_buy,qty_precision)
+        print('qty buy : ',Qty_buy)
+        client.futures_change_leverage(symbol=symbol,leverage=lev) 
+        print('leverage : ',lev)
+        order_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='BUY', type='MARKET', quantity=Qty_buy)        
+        print(symbol," : BUY")        
+        time.sleep(1)
+        #get entry price to find margin value
+        entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
+        print("entryP=",entryP)
+        margin=entryP*Qty_buy/lev
+        #success openlong, push line notification        
+        new_balance=float(client.futures_account_balance()[balance_index][balance_key])
+        print("Old Balance=",balance)
+        print("New Balance=",new_balance)
+        paid=balance-new_balance
+        #paid=usdt/lev
+        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[BUY]" + "\nAmount  :" + str(Qty_buy) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nPaid        :" + str(round(paid,2)) + " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
+        r = requests.post(url, headers=headers, data = {'message':msg})
+    
+    #OpenShort/SELL
+    if action == "OpenShort" :                
+        qty_precision = 0
+        for j in client.futures_exchange_info()['symbols']:
+            if j['symbol'] == symbol:
+                qty_precision = int(j['quantityPrecision'])
+        #check if sell in @ or fiat
+        if amount[0]=='@':            
+            fiat=float(amount[1:len(amount)])
+            Qty_sell= round(fiat,qty_precision)
+            usdt=round(fiat*ask,qty_precision)
+            print("SELL/SHORT by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+        if amount[0]=='$':
+            usdt=float(amount[1:len(amount)])
+            Qty_sell = round(usdt/ask,qty_precision)
+            print("SELL/SHORT by USDT amount=", usdt, ": COIN", round(usdt,30))
+        print("CF:", symbol,":", action, ": Qty=", Qty_sell, " ", COIN,":USDT=", round(usdt,3))
+        Qty_sell = round(Qty_sell,qty_precision)
+        print('qty sell : ',Qty_sell)
+        client.futures_change_leverage(symbol=symbol,leverage=lev)
+        print('leverage : ',lev)
 
+        order_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='SELL', type='MARKET', quantity=Qty_sell)
+        print(symbol,": SELL")
+        time.sleep(1)
+        #get entry price to find margin value
+        entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
+        print("entryP=",entryP)
+        margin=entryP*Qty_sell/lev
+        #success openlong, push line notification        
+        new_balance=float(client.futures_account_balance()[balance_index][balance_key])
+        print("Old Balance=",balance)
+        print("New Balance=",new_balance)
+        paid=balance-new_balance        #paid=usdt/lev
+        #success openshort, push line notification        
+        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[SHORT]" + "\nAmount  :" + str(Qty_sell) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nPaid        :" + str(round(paid,2)) + " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
+        r = requests.post(url, headers=headers, data = {'message':msg})
+    
+    #test
     if action == "test":
         print("TEST! >> Pull position amount")
         print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']),"and should be Matched")
