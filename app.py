@@ -314,7 +314,7 @@ def webhook():
         print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),"and should be Matched")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest! \nPull position amount\nLong Position amount:" + str(posiAmtL) + "\nShort Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest! \nPull position amount\nLong Position amount:" + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + "\nShort Position amount:" + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])) + "\nBalance   :" + str(round(balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------------")
