@@ -131,7 +131,7 @@ def webhook():
         print("FREEBALANCE=",min_balance)
     #Alertline if balance<min_balance
     if balance<min_balance:            
-        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT" + "\n!!!!MARGIN-CALL"
+        msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT" + "\n!!!!MARGIN-CALL!!!!"
         r = requests.post(url, headers=headers, data = {'message':msg})
         return {
         "code" : "fail",
@@ -314,10 +314,10 @@ def webhook():
         print("TEST! >> Pull position info")     
         print("---------------------------")
         print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
-        print("Long Entry Price"float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
+        print("Long Entry Price",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
         print("---------------------------")
         print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        print("Short Entry Price"float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
+        print("Short Entry Price",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
         print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
@@ -326,6 +326,7 @@ def webhook():
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("---------------------------COMPLETED---------------------------")
+    
     return {
         "code" : "success",
         "message" : "OKi!"
