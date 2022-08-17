@@ -54,7 +54,7 @@ def webhook():
         print("Invalid SECRET KEY/PASSPHRASE")
         return {
         "code" : "fail",
-        "message" : "Denied"
+        "message" : "Denied : Nice try."
         }
     print("Valid SECRET KEY/PASSPHRASE")
     
