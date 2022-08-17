@@ -50,30 +50,34 @@ def hello_world():
 def webhook():
     data = json.loads(request.data)
     print("decoding data...")
+    if passphrase != SECRET_KEY:
+        print("Invalid SECRET KEY/PASSPHRASE")
+        return {
+        "code" : "fail",
+        "message" : str(data)
+        }
+    print("Valid SECRET KEY/PASSPHRASE")
+    
     if ORDER_ENABLE=='TRUE':
         action = data['side']
+        amount = data['amount']
+        symbol = data['symbol']
+        passphrase = data['passphrase']
+        lev = data['leverage']
+
     else:
         action = 'maintenance mode'
-
-    amount = data['amount']
-    symbol = data['symbol']
-    passphrase = data['passphrase']
-    lev = data['leverage']
+ 
+    
+    
     #separate amount type
     fiat=0
     usdt=0
     percent=0    
 
     #check if secretkey is valid
-    if passphrase != SECRET_KEY:
-        print("Invalid SECRET KEY/PASSPHRASE")
-        return {
-        "code" : "fail",
-        "message" : data
-        }
-    print("Valid SECRET KEY/PASSPHRASE")
-    data = client.futures_get_position_mode()
-    print("Position mode: Hedge Mode" if data['dualSidePosition'] == True else "Position mode: OneWay Mode")
+    CHmod = client.futures_get_position_mode()
+    print("Position mode: Hedge Mode" if CHmod['dualSidePosition'] == True else "Position mode: OneWay Mode")
 
 
     #trim PERT from symbol
@@ -134,8 +138,8 @@ def webhook():
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
 
-    posiAmtL = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
-    posiAmtS = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
+    #posiAmtL = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
+    #posiAmtS = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
     print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
     print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
 
@@ -220,7 +224,8 @@ def webhook():
 
 
     if action == "CloseLong":
-        if posiAmtL > 0.0 :
+        posiAmt = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
+        if posiAmt > 0.0 :
             qty_precision = 0
             for j in client.futures_exchange_info()['symbols']:
                 if j['symbol'] == symbol:
@@ -228,7 +233,7 @@ def webhook():
             print("qty_precision",qty_precision)
             #check if sell in % or $
             if amount[0]=='%':            
-                qty_close=round(percent*posiAmtL/100,qty_precision)                
+                qty_close=round(percent*posiAmt/100,qty_precision)                
                 usdt=round(qty_close*ask,qty_precision)                
                 print("SELL/CloseLong by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
@@ -261,7 +266,8 @@ def webhook():
             print(symbol,": CloseLong")
 
     if action == "CloseShort":
-        if posiAmtS < 0.0 :
+        posiAmt = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
+        if posiAmt < 0.0 :
             qty_precision = 0
             for j in client.futures_exchange_info()['symbols']:
                 if j['symbol'] == symbol:
@@ -269,7 +275,7 @@ def webhook():
             print("qty_precision",qty_precision)
             #check if buy in % or $
             if amount[0]=='%':            
-                qty_close=round(percent*posiAmtS/100,qty_precision)
+                qty_close=round(percent*posiAmt/100,qty_precision)
                 usdt=round(qty_close*bid,qty_precision)
                 print("BUY/CloseShort by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
@@ -304,10 +310,8 @@ def webhook():
 
     if action == "test":
         print("TEST! >> Pull position amount")
-        print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
-        print("and should be Matched:",posiAmtL)
-        print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
-        print("and should be  matched:",posiAmtS)
+        print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']),"and should be Matched")
+        print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),"and should be Matched")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nTest! \nPull position amount\nLong Position amount:" + str(posiAmtL) + "\nShort Position amount:" + str(posiAmtS) + "\nBalance   :" + str(round(balance,2)) + " USDT"
@@ -317,7 +321,7 @@ def webhook():
 
     return {
         "code" : "success",
-        "message" : data
+        "message" : str(data)
     }
 
 if __name__ == '__main__':
