@@ -1,5 +1,4 @@
 #the following is the cryto trade bot and compatible with the follwing strategy message
-
 #passphrase = input.string(defval='xxxx', title ='Bot Pass',group='═ Bot Setting ═')
 #leveragex  = input.int(125,title='leverage',group='═ Bot Setting ═',tooltip='"NOTHING" to do with Position size',minval=1)
 #string Alert_OpenLong       = '{"side": "OpenLong", "amount": "@{{strategy.order.contracts}}", "symbol": "{{ticker}}", "passphrase": "'+passphrase+'","leverage":"'+str.tostring(leveragex)+'"}'
@@ -55,7 +54,7 @@ def webhook():
         print("Invalid SECRET KEY/PASSPHRASE")
         return {
         "code" : "fail",
-        "message" : str(data)
+        "message" : "Denied"
         }
     print("Valid SECRET KEY/PASSPHRASE")
     
@@ -134,12 +133,13 @@ def webhook():
     if balance<min_balance:            
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})
-
+        return {
+        "code" : "fail",
+        "message" : "Margin-CALL"
+        }
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
 
-    #posiAmtL = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
-    #posiAmtS = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
     print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
     print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
 
@@ -193,7 +193,7 @@ def webhook():
         #check if sell in @ or fiat
         if amount[0]=='@':            
             fiat=float(amount[1:len(amount)])
-            Qty_sell= -1*round(fiat,qty_precision)
+            Qty_sell= round(fiat,qty_precision)
             usdt=round(fiat*ask,qty_precision)
             print("SELL/SHORT by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
         if amount[0]=='$':
@@ -242,7 +242,7 @@ def webhook():
                 print("SELL/CloseLong by USDT amount=", usdt, ": COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
-                qty_close= -1*round(fiat,qty_precision)
+                qty_close= round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
                 print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
             print("CF:", symbol,":", action, ": Qty=", qty_close, " ", COIN,":USDT=", round(usdt,3))                    
@@ -321,7 +321,7 @@ def webhook():
 
     return {
         "code" : "success",
-        "message" : str(data)
+        "message" : "OKi!"
     }
 
 if __name__ == '__main__':
