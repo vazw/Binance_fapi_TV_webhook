@@ -146,7 +146,8 @@ def webhook():
 
     #List of action OpenLong=BUY, OpenShort=SELL, CloseLong=SELL, CloseShort=BUY
     new_balance=0
-
+    posiAmt = 0
+    unpnl = 0
     #CloseShort/BUY
     if action == "CloseShort":
         posiAmt = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
@@ -295,6 +296,8 @@ def webhook():
     
     #test unRealizedProfit
     if action == "test":
+        ROIB = 0
+        ROIS = 0
         print("Position info :")     
         print("---------------------------")
         print("Long amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
