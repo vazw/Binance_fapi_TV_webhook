@@ -106,7 +106,7 @@ def webhook():
         if balance_list[i]['asset']=='USDT':
             balance_index=i
             break
-    balance_key='withdrawAvailable'    
+    balance_key='balance'    
     balance=float(client.futures_account_balance()[balance_index][balance_key])        
     print("Balance = ",balance," USDT")
 
