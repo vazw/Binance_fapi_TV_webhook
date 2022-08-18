@@ -301,15 +301,17 @@ def webhook():
         entryPB = float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
         print("Long Entry :",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
         print("Long Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),"USDT")
-        ROIB= (ask-entryPB)/entryPB*100*lev     
-        print("Long %ROE=",ROIB)
+        if entryPB > 0 :
+            ROIB= (ask-entryPB)/entryPB*100*lev     
+            print("Long %ROE=",ROIB)
         print("---------------------------")
         print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
         entryPS = float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
         print("Short Entry :",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
         print("Short Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),"USDT")
-        ROIS= (entryPS-bid)/entryPS*100*lev     
-        print("Short %ROE=",ROIS)   
+        if entryPS > 0 :
+            ROIS= (entryPS-bid)/entryPS*100*lev     
+            print("Short %ROE=",ROIS)   
         print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
