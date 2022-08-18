@@ -48,7 +48,7 @@ def hello_world():
 @app.route("/webhook", methods=['POST'])
 def webhook():
     data = json.loads(request.data)
-    print("decoding data...")
+    print("Received Signal.......")
     passphrase = data['passphrase']
     if passphrase != SECRET_KEY:
         print("Invalid SECRET KEY/PASSPHRASE")
@@ -73,11 +73,6 @@ def webhook():
     usdt=0
     percent=0    
 
-    #check if secretkey is valid
-    CHmod = client.futures_get_position_mode()
-    print("Position mode: Hedge Mode" if CHmod['dualSidePosition'] == True else "Position mode: OneWay Mode")
-
-
     #trim PERT from symbol
     if (symbol[len(symbol)-4:len(symbol)]) == "PERP":
         symbol=symbol[0:len(symbol)-4]
@@ -93,13 +88,7 @@ def webhook():
     if amount[0]=='%':
         percent= float(amount[1:len(amount)])
         print("Percent:",symbol, " : ",action," : amount=",percent," : leverage=" , lev)
-
-    print('amount=',amount)
-    print('fiat=',fiat)
-    print('USDT=',usdt)
-    print('Percent=',percent)      
-    print('show balance list')
-
+   
     bid = 0
     ask = 0
     new_balance=0
@@ -112,13 +101,11 @@ def webhook():
     #check USDT Balance
     balance_index=0
     balance_list=client.futures_account_balance()
-    print(len(balance_list))
     for i in range(0,(len(balance_list)-1),1):    
         #print("asset=",balance_list[i]['asset'])
         if balance_list[i]['asset']=='USDT':
             balance_index=i
             break
-    print("Balance list=",balance_list[balance_index])
     balance_key='withdrawAvailable'    
     balance=float(client.futures_account_balance()[balance_index][balance_key])        
     print("Balance = ",balance," USDT")
@@ -128,7 +115,8 @@ def webhook():
         min_balance=float(FREEBALANCE[1:len(FREEBALANCE)])
         print("FREEBALANCE=",min_balance," USDT")
     #Alertline if balance<min_balance
-    if balance<min_balance:            
+    if balance<min_balance:  
+        print("MARGIN-CALL")
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT" + "\n!!!!MARGIN-CALL!!!!"
         r = requests.post(url, headers=headers, data = {'message':msg})
         return {
@@ -233,7 +221,7 @@ def webhook():
             usdt=float(amount[1:len(amount)])
             Qty_buy = round(usdt/bid,qty_precision)
             print("BUY/LONG by USDT amount=", usdt, ": COIN", round(usdt,30))
-        print("CF:", symbol,":",action, ":Qty=",Qty_buy, " ", COIN,":USDT=", round(usdt,3))
+        print("Confirm:", symbol,":",action, ":Qty=",Qty_buy, " ", COIN,":USDT=", round(usdt,3))
         Qty_buy = round(Qty_buy,qty_precision)
         print('qty buy : ',Qty_buy)
         client.futures_change_leverage(symbol=symbol,leverage=lev) 
@@ -268,7 +256,7 @@ def webhook():
             usdt=float(amount[1:len(amount)])
             Qty_sell = round(usdt/ask,qty_precision)
             print("SELL/SHORT by USDT amount=", usdt, ": COIN", round(usdt,30))
-        print("CF:", symbol,":", action, ": Qty=", Qty_sell, " ", COIN,":USDT=", round(usdt,3))
+        print("Confirm:", symbol,":", action, ": Qty=", Qty_sell, " ", COIN,":USDT=", round(usdt,3))
         Qty_sell = round(Qty_sell,qty_precision)
         print('qty sell : ',Qty_sell)
         client.futures_change_leverage(symbol=symbol,leverage=lev)
