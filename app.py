@@ -280,28 +280,32 @@ def webhook():
     if action == "test":
         ROIB = 0
         ROIS = 0
-        print("Position info :")     
+        amoutL = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
+        amoutS = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
+        print("Position info :")  
         print("---------------------------")
-        print("Long amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']),COIN)
-        entryPB = float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
-        print("Long Entry :",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
-        print("Long Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),"USDT")
-        if entryPB > 0 :
-            ROIB= (ask-entryPB)/entryPB*100*lev     
-            print("Long %ROE=",ROIB)
-        print("---------------------------")
-        print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
-        entryPS = float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
-        print("Short Entry :",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
-        print("Short Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),"USDT")
-        if entryPS > 0 :
-            ROIS= (entryPS-bid)/entryPS*100*lev     
-            print("Short %ROE=",ROIS)   
-        print("---------------------------")
+        if amoutL > 0 :
+            print("Long amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']),COIN)
+            entryPB = float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
+            print("Long Entry :",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
+            print("Long Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),"USDT")
+            if entryPB > 0 :
+                ROIB= (ask-entryPB)/entryPB*100*lev     
+                print("Long %ROE=",ROIB)
+            print("---------------------------")
+        if amoutS < 0 :
+            print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
+            entryPS = float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
+            print("Short Entry :",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
+            print("Short Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),"USDT")
+            if entryPS > 0 :
+                ROIS= (entryPS-bid)/entryPS*100*lev     
+                print("Short %ROE=",ROIS)   
+            print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
         print("---------------------------")
-        msg ="BINANCE:\n" + "BOT                 : " + BOT_NAME + "\nPosition info    : " + COIN +"/USDT"+ "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))+ COIN + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT"+ "\n%ROE                : "+ str(round(ROIB,2)) + "%"+ "\n                ---------------------------" + "\nShort Entry      : "+ str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN  + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\n%ROE                : "+ str(round(ROIS,2)) + "%"+ "\n                ---------------------------"+ "\nBalance   : " + str(round(balance,2)) + " USDT"
+        msg ="BINANCE:\n" + "BOT                 : " + BOT_NAME + "\nPosition info    : " + COIN +"/USDT"+ "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))+ COIN + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT"+ "\n%ROE              : "+ str(round(ROIB,2)) + "%"+ "\n         -------------" + "\nShort Entry      : "+ str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN  + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\n%ROE              : "+ str(round(ROIS,2)) + "%"+ "\n         -------------"+ "\nBalance   : " + str(round(balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})        
 
     print("----------------------COMPLETED----------------------")
