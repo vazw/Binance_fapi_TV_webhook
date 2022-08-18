@@ -66,6 +66,7 @@ def webhook():
 
     else:
         action = 'test'
+        symbol = data['symbol']
  
     
     
@@ -99,15 +100,17 @@ def webhook():
     print('fiat=',fiat)
     print('USDT=',usdt)
     print('Percent=',percent)      
-
+    print('show balance list')
 
     bid = 0
     ask = 0
+    new_balance=0
+    posiAmt = 0
+    unpnl = 0
+    min_balance=0
     usdt = float(usdt)
     lev = int(lev)
-
-    min_balance=0
-    print('show balance list')
+    
     #check USDT Balance
     balance_index=0
     balance_list=client.futures_account_balance()
@@ -139,13 +142,10 @@ def webhook():
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
     
     #List of action OpenLong=BUY, OpenShort=SELL, CloseLong=SELL, CloseShort=BUY
-    new_balance=0
-    posiAmt = 0
-    unpnl = 0
     #CloseShort/BUY
     if action == "CloseShort":
         posiAmt = float(client.futures_position_information(symbol=symbol)[2]['positionAmt'])
-        print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
+        print("Short Position amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
         unpnl = float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])
         if posiAmt < 0.0 :
             qty_precision = 0
@@ -179,12 +179,12 @@ def webhook():
             #success close buy, push line notification                    
             msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[BUY]" + "\nAmount  :" + str(qty_close*-1) + " "+  COIN +"/"+str(round((qty_close*bid*-1),2))+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive   :" + str(round(unpnl,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
-            print(symbol,": Close Short Position")
+            print(symbol,": Close Short Position Excuted")
     
     #CloseLong/SELL
     if action == "CloseLong":
         posiAmt = float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])
-        print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+        print("Long Position amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']),COIN)
         unpnl = float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])
         if posiAmt > 0.0 :
             qty_precision = 0
@@ -217,7 +217,7 @@ def webhook():
             print("Margin %ROE=",ROI)
             msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin       :" + COIN + "/USDT" + "\nStatus    :" + action + "[SELL]" + "\nAmount  :" + str(qty_close) + " "+  COIN +"/"+str(round((qty_close*ask),2))+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage:" + str(lev) + "\nReceive   :" + str(round(unpnl,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
-            print(symbol,": Close Long Position")
+            print(symbol,": Close Long Position Excuted")
         
     #OpenLong/BUY
     if action == "OpenLong" :
@@ -252,7 +252,7 @@ def webhook():
         print("New Balance=",new_balance)
         msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[BUY]" + "\nAmount  :" + str(Qty_buy) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})
-        print(symbol," : Open Long Position") 
+        print(symbol," : Open Long Position Excuted") 
     
     #OpenShort/SELL
     if action == "OpenShort" :                
@@ -288,7 +288,7 @@ def webhook():
         #success openshort, push line notification        
         msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[SHORT]" + "\nAmount  :" + str(Qty_sell) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage:" + str(lev) +"\nMargin   :" + str(round(margin,2))+ " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})
-        print(symbol,": Open Short Position")
+        print(symbol,": Open Short Position Excuted")
     
     #test/Position info
     if action == "test":
@@ -296,7 +296,7 @@ def webhook():
         ROIS = 0
         print("Position info :")     
         print("---------------------------")
-        print("Long amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']))
+        print("Long amount:",float(client.futures_position_information(symbol=symbol)[1]['positionAmt']),COIN)
         entryPB = float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
         print("Long Entry :",float(client.futures_position_information(symbol=symbol)[1]['entryPrice']))
         print("Long Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),"USDT")
@@ -304,7 +304,7 @@ def webhook():
             ROIB= (ask-entryPB)/entryPB*100*lev     
             print("Long %ROE=",ROIB)
         print("---------------------------")
-        print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))
+        print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
         entryPS = float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
         print("Short Entry :",float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))
         print("Short Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),"USDT")
