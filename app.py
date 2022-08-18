@@ -126,7 +126,7 @@ def webhook():
     #print(FREEBALANCE[0])
     if FREEBALANCE[0]=='$':
         min_balance=float(FREEBALANCE[1:len(FREEBALANCE)])
-        print("FREEBALANCE=",min_balance)
+        print("FREEBALANCE=",min_balance," USDT")
     #Alertline if balance<min_balance
     if balance<min_balance:            
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT" + "\n!!!!MARGIN-CALL!!!!"
