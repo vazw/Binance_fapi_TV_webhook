@@ -60,15 +60,13 @@ def webhook():
     
     if ORDER_ENABLE=='TRUE':
         action = data['side']
-        amount = data['amount']
-        symbol = data['symbol']
-        lev = data['leverage']
 
     else:
         action = 'test'
-        symbol = data['symbol']
  
-    
+    amount = data['amount']
+    symbol = data['symbol']
+    lev = data['leverage']
     
     #separate amount type
     fiat=0
