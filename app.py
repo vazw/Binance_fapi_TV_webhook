@@ -170,10 +170,11 @@ def webhook():
             time.sleep(1)    
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            ROI= (entryP-bid)/entryP*100*lev     
+            ROI= (entryP-bid)/entryP*100*lev
+            profit = unpnl * (qty_close*-1/posiAmt)
             print("Margin %ROE=",ROI)            
             #success close buy, push line notification                    
-            msg ="BINANCE:\n" + "BOT         : " + BOT_NAME + "\nCoin        : " + COIN + "/USDT" + "\nStatus      : " + action + "[BUY]" + "\nAmount      : " + str(qty_close*-1) + " "+  COIN +"("+str(round((qty_close*bid*-1),2))+" USDT)" + "\nPrice        :" + str(bid) + " USDT" + "\nLeverage    : " + str(lev) + "\nRealized P/L: " + str(round(unpnl,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT         : " + BOT_NAME + "\nCoin        : " + COIN + "/USDT" + "\nStatus      : " + action + "[BUY]" + "\nAmount      : " + str(qty_close*-1) + " "+  COIN +"("+str(round((qty_close*bid*-1),2))+" USDT)" + "\nPrice        :" + str(bid) + " USDT" + "\nLeverage    : " + str(lev) + "\nRealized P/L: " + str(round(profit,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": Close Short Position Excuted")
     
@@ -209,9 +210,10 @@ def webhook():
             time.sleep(1)
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            ROI= (ask-entryP)/entryP*100*lev     
+            ROI= (ask-entryP)/entryP*100*lev    
+            profit = unpnl * (qty_close/posiAmt)
             print("Margin %ROE=",ROI)
-            msg ="BINANCE:\n" + "BOT        :  " + BOT_NAME + "\nCoin         : " + COIN + "/USDT" + "\nStatus      : " + action + "[SELL]" + "\nAmount      : " + str(qty_close) + " "+  COIN +"("+str(round((qty_close*ask),2))+" USDT)" + "\nPrice       : " + str(ask) + " USDT" + "\nLeverage    : " + str(lev) + "\nRealized P/L: " + str(round(unpnl,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT        :  " + BOT_NAME + "\nCoin         : " + COIN + "/USDT" + "\nStatus      : " + action + "[SELL]" + "\nAmount      : " + str(qty_close) + " "+  COIN +"("+str(round((qty_close*ask),2))+" USDT)" + "\nPrice       : " + str(ask) + " USDT" + "\nLeverage    : " + str(lev) + "\nRealized P/L: " + str(round(profit,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": Close Long Position Excuted")
         
