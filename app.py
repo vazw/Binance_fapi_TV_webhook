@@ -134,8 +134,8 @@ def webhook():
         "message" : "Margin-CALL"
         }
     
-    bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
-    ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
+    bid = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
+    ask = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice'])
     
     #List of action OpenLong=BUY, OpenShort=SELL, CloseLong=SELL, CloseShort=BUY
     #CloseShort/BUY
