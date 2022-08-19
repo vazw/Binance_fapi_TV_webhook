@@ -305,12 +305,12 @@ def webhook():
             print("Long Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),"USDT")
             leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage']) 
             print("Leverage           :",float(client.futures_position_information(symbol=symbol)[1]['leverage']))
-            margin=entryPB*amoutL/leverage
-            print("Margin             :",margin)
+            margin = entryPB*amoutL/leverage
+            print("Margin             :",round(margin,2))
             if entryPB > 0 :
                 ROIB= (bid-entryPB)/entryPB*100*leverage     
                 print("Long %ROE=",ROIB)
-            msgL = "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + COIN + "(" + str(round((amoutL*bid),2)) + " USDT)" + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT" + "\nLeverage           :" + str(float(client.futures_position_information(symbol=symbol)[1]['leverage'])) + "\nMargin            : "+ str(margin)  + "\n%ROE              : "+ str(round(ROIB,2)) + "%" + "\n         -------------" 
+            msgL = "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + COIN + "(" + str(round((amoutL*bid),2)) + " USDT)" + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT" + "\nLeverage           :" + str(float(client.futures_position_information(symbol=symbol)[1]['leverage'])) + "\nMargin            : "+ str(round(margin,2))  + "\n%ROE              : "+ str(round(ROIB,2)) + "%" + "\n         -------------" 
             print("---------------------------")
         if amoutS > 0 :
             print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
@@ -319,12 +319,12 @@ def webhook():
             print("Short Unrealized PNL:",float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),"USDT")
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage']) 
             print("Leverage           :",float(client.futures_position_information(symbol=symbol)[2]['leverage']))
-            margin=entryPS*amoutS/leverage
-            print("Margin             :",margin)
+            margin = entryPS*amoutS/leverage
+            print("Margin             :",round(margin,2))
             if entryPS > 0 :
                 ROIS= (entryPS-ask)/entryPS*100*leverage     
                 print("Short %ROE=",ROIS)   
-            msgS = "\nShort Entry      : " + str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN + "(" +str(round((amoutS*ask),2)) + " USDT)"  + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\nLeverage           :" + str(float(client.futures_position_information(symbol=symbol)[1]['leverage'])) + "\nMargin            : "+ str(margin) + "\n%ROE              : "+ str(round(ROIS,2)) + "%" + "\n         -------------" 
+            msgS = "\nShort Entry      : " + str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN + "(" +str(round((amoutS*ask),2)) + " USDT)"  + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\nLeverage           :" + str(float(client.futures_position_information(symbol=symbol)[1]['leverage'])) + "\nMargin            : "+ str(round(margin,2)) + "\n%ROE              : "+ str(round(ROIS,2)) + "%" + "\n         -------------" 
             print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
