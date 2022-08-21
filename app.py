@@ -163,6 +163,8 @@ def webhook():
                 qty_close = round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
                 print("BUY/CloseShort by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+            if abs(qty_close) > abs(posiAmt) :
+                qty_close = abs(posiAmt)
             print("Confirm:", symbol,":",action, ":Qty=",qty_close, " ", COIN,":USDT=", round(usdt,3))
             qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
@@ -204,6 +206,8 @@ def webhook():
                 qty_close= round(fiat,qty_precision)
                 usdt=round(fiat*bid,qty_precision)
                 print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+            if abs(qty_close) > abs(posiAmt) :
+                qty_close = abs(posiAmt)
             print("Confirm:", symbol,":", action, ": Qty=", qty_close, " ", COIN,":USDT=", round(usdt,3))      
             qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage'])  
