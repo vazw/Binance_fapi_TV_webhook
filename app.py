@@ -312,7 +312,7 @@ def webhook():
             if entryPB > 0 :
                 ROIB= (ask-entryPB)/entryPB*100*leverage     
                 print("Long %ROE=",ROIB)
-            msgL = "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + COIN + "(" + str(round((amoutL*ask),2)) + " USDT)" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2))  + " USDT\n%ROE              : "+ str(round(ROIB,2)) + "%" + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT"+ "\n         -------------" 
+            msgL = "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + COIN + "(" + str(round((amoutL*ask),2)) + " USDT)" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2))  + " USDT\n%ROE              : "+ str(round(ROIB,2)) + "%" + "\nUnrealized P/L: " + str(round(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit']),2)) + " USDT"+ "\n         -------------" 
             print("---------------------------")
         if amoutS > 0 :
             print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
@@ -326,7 +326,7 @@ def webhook():
             if entryPS > 0 :
                 ROIS= (entryPS-bid)/entryPS*100*leverage     
                 print("Short %ROE=",ROIS)   
-            msgS = "\nShort Entry      : " + str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN + "(" +str(round((amoutS*bid),2)) + " USDT)" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2)) + " USDT\n%ROE              : "+ str(round(ROIS,2)) + "%" + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\n         -------------" 
+            msgS = "\nShort Entry      : " + str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN + "(" +str(round((amoutS*bid),2)) + " USDT)" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2)) + " USDT\n%ROE              : "+ str(round(ROIS,2)) + "%" + "\nUnrealized P/L: "+ str(round(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit']),2)) +" USDT" + "\n         -------------" 
             print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
