@@ -156,13 +156,13 @@ def webhook():
                 print("BUY/CloseShort by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
                 usdt=float(amount[1:len(amount)])
-                qty_close = -1*round(usdt/ask,qty_precision)
+                qty_close = round(usdt/ask,qty_precision)
                 print("BUY/CloseShort by USDT amount=", usdt, ": COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
-                qty_close = -1*round(fiat,qty_precision)
+                qty_close = round(fiat,qty_precision)
                 usdt=round(fiat*ask,qty_precision)
-                print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
+                print("BUY/CloseShort by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
             print("Confirm:", symbol,":",action, ":Qty=",qty_close, " ", COIN,":USDT=", round(usdt,3))
             qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
