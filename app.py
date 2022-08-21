@@ -99,8 +99,8 @@ def webhook():
         percent= float(amount[1:len(amount)])
         print("Percent:",symbol, " : ",action," : amount=",percent," : leverage=" , lev)
    
-    bid = 0
     ask = 0
+    bid = 0
     new_balance=0
     posiAmt = 0
     unpnl = 0
@@ -134,8 +134,8 @@ def webhook():
         "message" : "Margin-CALL"
         }
     
-    bid = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
-    ask = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice']) 
+    ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
+    bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice']) 
     
     #List of action OpenLong=BUY, OpenShort=SELL, CloseLong=SELL, CloseShort=BUY
     #CloseShort/BUY
@@ -152,29 +152,30 @@ def webhook():
             #check if buy in % or $
             if amount[0]=='%':            
                 qty_close=round(percent*posiAmt/100,qty_precision)
-                usdt=round(qty_close*bid,qty_precision)
+                usdt=round(qty_close*ask,qty_precision)
                 print("BUY/CloseShort by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
                 usdt=float(amount[1:len(amount)])
-                qty_close = -1*round(usdt/bid,qty_precision)
+                qty_close = -1*round(usdt/ask,qty_precision)
                 print("BUY/CloseShort by USDT amount=", usdt, ": COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
                 qty_close = -1*round(fiat,qty_precision)
-                usdt=round(fiat*bid,qty_precision)
+                usdt=round(fiat*ask,qty_precision)
                 print("SELL/CloseShort by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
             print("Confirm:", symbol,":",action, ":Qty=",qty_close, " ", COIN,":USDT=", round(usdt,3))
+            qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[2]['leverage'])              
             entryP=float(client.futures_position_information(symbol=symbol)[2]['entryPrice'])
-            close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity= abs(qty_close))                        
+            close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity= qty_close)                        
             time.sleep(1)    
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            ROI= (entryP-bid)/entryP*100*leverage
+            ROI= (entryP-ask)/entryP*100*leverage
             profit = unpnl * abs(qty_close/posiAmt)
             print("Margin %ROE=",ROI)            
             #success close buy, push line notification                    
-            msg ="BINANCE:\n" + "BOT         : " + BOT_NAME + "\nCoin        : " + COIN + "/USDT" + "\nStatus      : " + action + "[BUY]" + "\nAmount    : " + str(qty_close*-1) + " "+  COIN +"("+str(round((qty_close*bid*-1),2))+" USDT)" + "\nPrice        :" + str(bid) + " USDT" + "\nLeverage    : X" + str(round(leverage)) + "\nRealized P/L: " + str(round(profit,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT         : " + BOT_NAME + "\nCoin        : " + COIN + "/USDT" + "\nStatus      : " + action + "[BUY]" + "\nAmount    : " + str(qty_close*-1) + " "+  COIN +"("+str(round((qty_close*ask*-1),2))+" USDT)" + "\nPrice        :" + str(ask) + " USDT" + "\nLeverage    : X" + str(round(leverage)) + "\nRealized P/L: " + str(round(profit,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": Close Short Position Excuted")
     
@@ -192,28 +193,29 @@ def webhook():
             #check if sell in % or $
             if amount[0]=='%':            
                 qty_close=round(percent*posiAmt/100,qty_precision)                
-                usdt=round(qty_close*ask,qty_precision)                
+                usdt=round(qty_close*bid,qty_precision)                
                 print("SELL/CloseLong by % amount=", qty_close, " ", COIN, ": USDT=",round(usdt,3))
             if amount[0]=='$':
                 usdt=float(amount[1:len(amount)])                
-                qty_close = round(usdt/ask,qty_precision)                
+                qty_close = round(usdt/bid,qty_precision)                
                 print("SELL/CloseLong by USDT amount=", usdt, ": COIN", round(qty_close,3))
             if amount[0]=='@':            
                 fiat=float(amount[1:len(amount)])
                 qty_close= round(fiat,qty_precision)
-                usdt=round(fiat*ask,qty_precision)
+                usdt=round(fiat*bid,qty_precision)
                 print("SELL/CloseLong by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
-            print("Confirm:", symbol,":", action, ": Qty=", qty_close, " ", COIN,":USDT=", round(usdt,3))                    
+            print("Confirm:", symbol,":", action, ": Qty=", qty_close, " ", COIN,":USDT=", round(usdt,3))      
+            qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[1]['leverage'])  
             entryP=float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])
-            close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity= abs(qty_close))            
+            close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity= qty_close)            
             time.sleep(1)
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
-            ROI= (ask-entryP)/entryP*100*leverage    
+            ROI= (bid-entryP)/entryP*100*leverage    
             profit = unpnl * abs(qty_close/posiAmt)
             print("Margin %ROE=",ROI)
-            msg ="BINANCE:\n" + "BOT        :  " + BOT_NAME + "\nCoin         : " + COIN + "/USDT" + "\nStatus      : " + action + "[SELL]" + "\nAmount    : " + str(qty_close) + " "+  COIN +"("+str(round((qty_close*ask),2))+" USDT)" + "\nPrice       : " + str(ask) + " USDT" + "\nLeverage    : X" + str(round(leverage)) + "\nRealized P/L: " + str(round(profit,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT        :  " + BOT_NAME + "\nCoin         : " + COIN + "/USDT" + "\nStatus      : " + action + "[SELL]" + "\nAmount    : " + str(qty_close) + " "+  COIN +"("+str(round((qty_close*bid),2))+" USDT)" + "\nPrice       : " + str(bid) + " USDT" + "\nLeverage    : X" + str(round(leverage)) + "\nRealized P/L: " + str(round(profit,2)) + " USDT" + "\n%ROE       :"+ str(round(ROI,2)) + "%"+"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": Close Long Position Excuted")
         
@@ -227,11 +229,11 @@ def webhook():
         if amount[0]=='@':            
             fiat=float(amount[1:len(amount)])
             Qty_buy=round(fiat,qty_precision)
-            usdt=round(fiat*bid,qty_precision)
+            usdt=round(fiat*ask,qty_precision)
             print("BUY/LONG by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
         if amount[0]=='$':
             usdt=float(amount[1:len(amount)])
-            Qty_buy = round(usdt/bid,qty_precision)
+            Qty_buy = round(usdt/ask,qty_precision)
             print("BUY/LONG by USDT amount=", usdt, ": COIN", round(usdt,30))
         print("Confirm:", symbol,":",action, ":Qty=",Qty_buy, " ", COIN,":USDT=", round(usdt,3))
         Qty_buy = abs(round(Qty_buy,qty_precision))
@@ -248,7 +250,7 @@ def webhook():
         new_balance=float(client.futures_account_balance()[balance_index][balance_key])
         print("Old Balance=",balance)
         print("New Balance=",new_balance)
-        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[BUY]" + "\nAmount  :" + str(Qty_buy) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage: X" + str(round(lev)) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
+        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[BUY]" + "\nAmount  :" + str(Qty_buy) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(ask) + " USDT" + "\nLeverage: X" + str(round(lev)) +"\nMargin   :" + str(round(margin,2))+  " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})
         print(symbol," : Open Long Position Excuted") 
     
@@ -262,11 +264,11 @@ def webhook():
         if amount[0]=='@':            
             fiat=float(amount[1:len(amount)])
             Qty_sell= round(fiat,qty_precision)
-            usdt=round(fiat*ask,qty_precision)
+            usdt=round(fiat*bid,qty_precision)
             print("SELL/SHORT by @ amount=", fiat, " ", COIN, ": USDT=",round(usdt,3))
         if amount[0]=='$':
             usdt=float(amount[1:len(amount)])
-            Qty_sell = round(usdt/ask,qty_precision)
+            Qty_sell = round(usdt/bid,qty_precision)
             print("SELL/SHORT by USDT amount=", usdt, ": COIN", round(usdt,30))
         print("Confirm:", symbol,":", action, ": Qty=", Qty_sell, " ", COIN,":USDT=", round(usdt,3))
         Qty_sell = abs(round(Qty_sell,qty_precision))
@@ -284,7 +286,7 @@ def webhook():
         print("Old Balance=",balance)
         print("New Balance=",new_balance)
         #success openshort, push line notification        
-        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[SHORT]" + "\nAmount  :" + str(Qty_sell) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage: X" + str(round(lev)) +"\nMargin   :" + str(round(margin,2))+ " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
+        msg ="BINANCE:\n" + "BOT        :" + BOT_NAME + "\nCoin        :" + COIN + "/USDT" + "\nStatus     :" + action + "[SELL]" + "\nAmount  :" + str(Qty_sell) + " "+  COIN +"/"+str(usdt)+" USDT" + "\nPrice       :" + str(bid) + " USDT" + "\nLeverage: X" + str(round(lev)) +"\nMargin   :" + str(round(margin,2))+ " USDT"+ "\nBalance   :" + str(round(new_balance,2)) + " USDT"
         r = requests.post(url, headers=headers, data = {'message':msg})
         print(symbol,": Open Short Position Excuted")
     
@@ -308,9 +310,9 @@ def webhook():
             margin = entryPB*amoutL/leverage
             print("Margin             :",round(margin,2))
             if entryPB > 0 :
-                ROIB= (bid-entryPB)/entryPB*100*leverage     
+                ROIB= (ask-entryPB)/entryPB*100*leverage     
                 print("Long %ROE=",ROIB)
-            msgL = "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + COIN + "(" + str(round((amoutL*bid),2)) + " USDT)" + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2))  + " USDT\n%ROE              : "+ str(round(ROIB,2)) + "%" + "\n         -------------" 
+            msgL = "\nLong Entry        : "+ str(float(client.futures_position_information(symbol=symbol)[1]['entryPrice'])) +"\nLong amount   : " + str(float(client.futures_position_information(symbol=symbol)[1]['positionAmt'])) + COIN + "(" + str(round((amoutL*ask),2)) + " USDT)" + "\nUnrealized P/L: " + str(float(client.futures_position_information(symbol=symbol)[1]['unRealizedProfit'])) + " USDT" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2))  + " USDT\n%ROE              : "+ str(round(ROIB,2)) + "%" + "\n         -------------" 
             print("---------------------------")
         if amoutS > 0 :
             print("Short amount:",float(client.futures_position_information(symbol=symbol)[2]['positionAmt']),COIN)
@@ -322,9 +324,9 @@ def webhook():
             margin = entryPS*amoutS/leverage
             print("Margin             :",round(margin,2))
             if entryPS > 0 :
-                ROIS= (entryPS-ask)/entryPS*100*leverage     
+                ROIS= (entryPS-bid)/entryPS*100*leverage     
                 print("Short %ROE=",ROIS)   
-            msgS = "\nShort Entry      : " + str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN + "(" +str(round((amoutS*ask),2)) + " USDT)"  + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2)) + " USDT\n%ROE              : "+ str(round(ROIS,2)) + "%" + "\n         -------------" 
+            msgS = "\nShort Entry      : " + str(float(client.futures_position_information(symbol=symbol)[2]['entryPrice']))+ "\nShort amount  : " + str(float(client.futures_position_information(symbol=symbol)[2]['positionAmt']))+ COIN + "(" +str(round((amoutS*bid),2)) + " USDT)"  + "\nUnrealized P/L: "+ str(float(client.futures_position_information(symbol=symbol)[2]['unRealizedProfit'])) +" USDT" + "\nLeverage           :X" + str(round(leverage)) + "\nMargin            : "+ str(round(margin,2)) + " USDT\n%ROE              : "+ str(round(ROIS,2)) + "%" + "\n         -------------" 
             print("---------------------------")
         print("If position amount is = your real position in binance you are good to GO!")
         print("If something is off please re-check all Setting.")
