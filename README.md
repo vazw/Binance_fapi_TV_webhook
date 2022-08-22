@@ -1,4 +1,4 @@
-# tradingview-alert-webhook for binance-api (one-way mode)
+# tradingview-alert-webhook for binance-api (HEDGE mode)
 TradingView Strategy Alert Webhook that buys and sells crypto with the Binance API
 <sub> This script work only on Binance Future Hegde mode mode  or bot won't working.</sub>
 # Script is compatible with the follwing strategy message
