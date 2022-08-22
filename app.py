@@ -129,6 +129,7 @@ def webhook():
         print("MARGIN-CALL")
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT" + "\n!!!!MARGIN-CALL!!!!"
         r = requests.post(url, headers=headers, data = {'message':msg})
+        break
     
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice']) 
@@ -173,7 +174,7 @@ def webhook():
             profit = unpnl * abs(qty_close/posiAmt)
             print("Margin %ROE=",ROI)            
             #success close buy, push line notification                    
-            msg ="BINANCE:\n" + "BOT         : " + BOT_NAME + "\nCoin        : " + COIN + "/USDT" + "\nStatus      : " + action + "[BUY]" + "\nAmount    : " + str(qty_close*-1) + " "+  COIN +"("+str(round((qty_close*ask*-1),2))+" USDT)" + "\nPrice        :" + str(ask) + " USDT" + "\nLeverage    : X" + str(round(leverage)) + "\n%ROE       :"+ str(round(ROI,2)) + "%" + "\nRealized P/L: " + str(round(profit,2)) + " USDT"  +"\nBalance   :" + str(round(new_balance,2)) + " USDT"
+            msg ="BINANCE:\n" + "BOT         : " + BOT_NAME + "\nCoin        : " + COIN + "/USDT" + "\nStatus      : " + action + "[BUY]" + "\nAmount    : " + str(qty_close) + " "+  COIN +"("+str(round((qty_close*ask),2))+" USDT)" + "\nPrice        :" + str(ask) + " USDT" + "\nLeverage    : X" + str(round(leverage)) + "\n%ROE       :"+ str(round(ROI,2)) + "%" + "\nRealized P/L: " + str(round(profit,2)) + " USDT"  +"\nBalance   :" + str(round(new_balance,2)) + " USDT"
             r = requests.post(url, headers=headers, data = {'message':msg})
             print(symbol,": Close Short Position Excuted")
         else:
