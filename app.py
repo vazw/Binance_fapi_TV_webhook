@@ -129,7 +129,6 @@ def webhook():
         print("MARGIN-CALL")
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT" + "\n!!!!MARGIN-CALL!!!!"
         r = requests.post(url, headers=headers, data = {'message':msg})
-        break
     
     ask = float(client.futures_orderbook_ticker(symbol =symbol)['askPrice'])
     bid = float(client.futures_orderbook_ticker(symbol =symbol)['bidPrice']) 
