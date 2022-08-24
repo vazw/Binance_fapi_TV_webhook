@@ -69,12 +69,16 @@ def webhook():
     percent=0    
     idl = 0
     ids = 0
+    Lside = 'BOTH'
+    Sside = 'BOTH'
     
     currentmode = client.futures_get_position_mode()
     if currentmode['dualSidePosition'] == True :
         print("Position mode: Hedge Mode")
         idl = 1
         ids = 2
+        Lside = 'LONG'
+        Sside = 'SHORT'
     else : 
         print("Position mode: OneWay Mode")
     
@@ -160,7 +164,7 @@ def webhook():
             qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[ids]['leverage'])              
             entryP=float(client.futures_position_information(symbol=symbol)[ids]['entryPrice'])
-            close_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='BUY', type='MARKET', quantity= qty_close)                        
+            close_SELL = client.futures_create_order(symbol=symbol, positionSide=Sside, side='BUY', type='MARKET', quantity= qty_close)                        
             time.sleep(1)    
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
@@ -205,7 +209,7 @@ def webhook():
             qty_close = abs(round(qty_close,qty_precision))
             leverage = float(client.futures_position_information(symbol=symbol)[idl]['leverage'])  
             entryP=float(client.futures_position_information(symbol=symbol)[idl]['entryPrice'])
-            close_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='SELL', type='MARKET', quantity= qty_close)            
+            close_BUY = client.futures_create_order(symbol=symbol, positionSide=Lside, side='SELL', type='MARKET', quantity= qty_close)            
             time.sleep(1)
             #success close sell, push line notification                    
             new_balance=float(client.futures_account_balance()[balance_index][balance_key])
@@ -242,7 +246,7 @@ def webhook():
         except :
             lev = float(client.futures_position_information(symbol=symbol)[idl]['leverage'])
         print('leverage : X',lev)
-        order_BUY = client.futures_create_order(symbol=symbol, positionSide='LONG', side='BUY', type='MARKET', quantity=Qty_buy)               
+        order_BUY = client.futures_create_order(symbol=symbol, positionSide=Lside, side='BUY', type='MARKET', quantity=Qty_buy)               
         time.sleep(1)
         #get entry price to find margin value
         entryP=float(client.futures_position_information(symbol=symbol)[idl]['entryPrice'])
@@ -280,7 +284,7 @@ def webhook():
         except :
             lev = float(client.futures_position_information(symbol=symbol)[ids]['leverage'])
         print('leverage : X',lev)
-        order_SELL = client.futures_create_order(symbol=symbol, positionSide='SHORT', side='SELL', type='MARKET', quantity=Qty_sell)
+        order_SELL = client.futures_create_order(symbol=symbol, positionSide=Sside, side='SELL', type='MARKET', quantity=Qty_sell)
         time.sleep(1)
         #get entry price to find margin value
         entryP=float(client.futures_position_information(symbol=symbol)[ids]['entryPrice'])
