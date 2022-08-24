@@ -1,6 +1,6 @@
 # tradingview-alert-webhook for binance-api (HEDGE mode)
 TradingView Strategy Alert Webhook that buys and sells crypto with the Binance API
-<sub> This script work only on Binance Future Hegde mode mode  or bot won't working.</sub>
+This script work on both one-way mode and Hegde mode.
 # Script is compatible with the follwing strategy message
 ##### passphrase should be = SECRET_KEY
 ##### Open Position can use "$20" or "@0.02" for determined size In my case I can use "@xxx" as VXD auto calculate size 
@@ -19,9 +19,10 @@ TradingView Strategy Alert Webhook that buys and sells crypto with the Binance A
 ```
 
 # Sample payload 
-> {"side":"OpenShort","amount":"@0.006","symbol":"BTCUSDTPERP","passphrase":"1234","leverage":"125"}
-
-# There is 8 Vars Setting for HEROKU
+```
+{"side":"OpenShort","amount":"@0.006","symbol":"BTCUSDTPERP","passphrase":"1234","leverage":"125"}
+```
+# There is 7 Vars Setting for HEROKU
 1. API_KEY    	= your api key
 2. API_SECRET	= your api secret key
 3. LINE_TOKEN   = your Line-notify token can be genarated @https://notify-bot.line.me/en/
@@ -29,7 +30,6 @@ TradingView Strategy Alert Webhook that buys and sells crypto with the Binance A
 5. FREEBALANCE	= Min balance for trade(Bot will Halted if FREEBALANCE < Equity)
 6. SECRET_KEY	= your passphrase form tradingview signal
 7. ORDER_ENABLE = "TRUE" = Enable Bots "FALSE" = Disable Bots
-8. ReOpenOrder	= "on" = book order again if order not filled or fail "off" = disable 
 # YouTube tutorial on how to use this code (Thai)
 https://youtu.be/t3AOdg9QPiI
 ### mod and dev by DR.AKN
