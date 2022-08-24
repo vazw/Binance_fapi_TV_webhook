@@ -44,14 +44,14 @@ def hello_world():
 @app.route("/webhook", methods=['POST'])
 def webhook():
     data = json.loads(request.data)
-    print("decoding data...")
+    print("Received Signal.......")
     passphrase = data['passphrase']
     #check if secretkey is valid
     if passphrase != SECRET_KEY:
         print("Invalid SECRET KEY/PASSPHRASE")
         return {
         "code" : "fail",
-        "message" : "denied."
+        "message" : "denied : nice try."
         }
     print("Valid SECRET KEY/PASSPHRASE")
     #Enabletrade.
@@ -75,7 +75,8 @@ def webhook():
         print("Position mode: Hedge Mode")
         idl = 1
         ids = 2
-    else : print("Position mode: OneWay Mode")
+    else : 
+        print("Position mode: OneWay Mode")
     
     #trim PERP from symbol
     if (symbol[len(symbol)-4:len(symbol)]) == "PERP":
@@ -113,12 +114,12 @@ def webhook():
             break   
     balance_key='balance'     
     balance=float(client.futures_account_balance()[balance_index][balance_key])
-    print("USDT Balance=",balance)
+    print("USDT Balance=",balance," USDT")
     
     #print(FREEBALANCE[0])
     if FREEBALANCE[0]=='$':
         min_balance=float(FREEBALANCE[1:len(FREEBALANCE)])
-        print("FREEBALANCE=",min_balance)
+        print("FREEBALANCE=",min_balance," USDT")
     #Alertline if balance<min_balance
     if balance<min_balance:            
         msg ="BINANCE:\n" + "BOT       :" + BOT_NAME + "\n!!!WARNING!!!\nAccount Balance<"+ str(min_balance)+ " USDT"+"\nAccount Balance:"+ str(balance) + " USDT"
@@ -387,4 +388,4 @@ def webhook():
     }
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    app.run(debug=True)
