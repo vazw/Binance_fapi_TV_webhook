@@ -48,10 +48,14 @@ def change_leverage(data):
 
 
 def check_actions(actions):
-    if actions == "test":
+    if actions == "CloseLong" or actions == "OpenShort":
+        return "SELL"
+    elif actions == "CloseShort" or actions == "OpenLong":
+        return "BUY"
+    elif actions == "test":
         return "test"
     else:
-        return "BUY" if actions == ("CloseShort" or "OpenLong") else "SELL"
+        return "test"
 
 
 def get_position_size(symbol):
@@ -137,7 +141,7 @@ def close_order(data, position_data, side):
         + f"Leverage   : X{position_lev}\n"
         + f"Balance    : {balance} USDT"
     )
-    notify.send(message=message, sticker_id=1991, package_id=446)
+    return notify.send(message=message, sticker_id=1991, package_id=446)
 
 
 def open_order(data, side):
@@ -166,12 +170,12 @@ def open_order(data, side):
         + f"Leverage   : X{position_lev}\n"
         + f"Balance    : {balance} USDT"
     )
-    notify.send(message=message, sticker_id=1997, package_id=446)
+    return notify.send(message=message, sticker_id=1997, package_id=446)
 
 
 def closeall_order(data, position_data, side):
-    data["amount"] = position_size = float(
-        position_data["positionAmt"][data["symbol"]]
+    data["amount"] = position_size = abs(
+        float(position_data["positionAmt"][data["symbol"]])
     )
     position_entry = float(position_data["entryPrice"][data["symbol"]])
     position_lev = int(position_data["leverage"][data["symbol"]])
@@ -199,7 +203,7 @@ def closeall_order(data, position_data, side):
         + f"Leverage   : X{position_lev}\n"
         + f"Balance    : {balance} USDT"
     )
-    notify.send(message=message, sticker_id=1988, package_id=446)
+    return notify.send(message=message, sticker_id=1988, package_id=446)
 
 
 def OpenLong(data):
@@ -249,50 +253,61 @@ def signal_handle(data):
         symbol = symbol[0 : len(symbol) - 4]
     position_mode = client.futures_get_position_mode()
     position_data = get_position_size(symbol)
-    position_size = float(position_data["positionAmt"][symbol])
-    actions = check_actions((data["side"] if ORDER_ENABLE is True else "test"))
-    amount = check_amount(symbol, data["amount"], position_size, actions)
-    order_data = {
-        "amount_type": data["amount"][0],
-        "amount": amount,
-        "symbol": symbol,
-        "leverage": int(data["leverage"]),
-        "action": (data["side"] if ORDER_ENABLE is True else "test"),
-        "order_side": actions,
-        "mode": position_mode["dualSidePosition"],
-        "LongSide": ("LONG" if position_mode["dualSidePosition"] else "BOTH"),
-        "ShortSide": (
-            "Short" if position_mode["dualSidePosition"] else "BOTH"
-        ),
-        "balance": balance,
-    }
-
-    try:
-        if order_data["action"] == "CloseLong":
-            if position_size > 0.0:
-                CloseLong(order_data, position_data)
-            else:
-                return "No Position : Do Nothing"
-        if order_data["action"] == "CloseShort":
-            if position_size < 0.0:
-                CloseShort(order_data, position_data)
-            else:
-                return "No Position : Do Nothing"
-        if order_data["action"] == "OpenLong":
-            if not order_data["mode"] and position_size < 0.0:
-                CloseAllLong(order_data, position_data)
-                OpenLong(order_data, position_data)
-            else:
-                OpenLong(order_data, position_data)
-        if order_data["action"] == "OpenShort":
-            if not order_data["mode"] and position_size > 0.0:
-                CloseAllLong(order_data, position_data)
-                OpenShort(order_data, position_data)
-            else:
-                OpenShort(order_data, position_data)
-    except Exception as e:
-        print(e)
-        notify.send("เกิดข้อผิดพลาด")
+    """
+    ปัญหาที่ต้องแกไข
+    symbol
+    ETHUSDT     0.300
+    ETHUSDT    -0.030
+    Name: positionAmt, dtype: object
+    """
+    # position_size = float(position_data["positionAmt"][symbol])
+    print(position_data["positionAmt"][symbol])
+    return
+    # actions = check_actions((data["side"] if ORDER_ENABLE is True else "test"))
+    # amount = check_amount(symbol, data["amount"], position_size, actions)
+    # order_data = {
+    #     "amount_type": data["amount"][0],
+    #     "amount": amount,
+    #     "symbol": symbol,
+    #     "leverage": int(data["leverage"]),
+    #     "action": (data["side"] if ORDER_ENABLE is True else "test"),
+    #     "order_side": actions,
+    #     "mode": position_mode["dualSidePosition"],
+    #     "LongSide": ("LONG" if position_mode["dualSidePosition"] else "BOTH"),
+    #     "ShortSide": (
+    #         "SHORT" if position_mode["dualSidePosition"] else "BOTH"
+    #     ),
+    #     "balance": balance,
+    # }
+    # print(order_data)
+    #
+    # # try:
+    # if order_data["action"] == "CloseLong":
+    #     if position_size > 0.0:
+    #         CloseLong(order_data, position_data)
+    #     else:
+    #         return "No Position : Do Nothing"
+    # if order_data["action"] == "CloseShort":
+    #     if position_size < 0.0:
+    #         CloseShort(order_data, position_data)
+    #     else:
+    #         return "No Position : Do Nothing"
+    # if order_data["action"] == "OpenLong":
+    #     if not order_data["mode"] and position_size < 0.0:
+    #         CloseAllShort(order_data, position_data)
+    #         OpenLong(order_data)
+    #     else:
+    #         OpenLong(order_data)
+    # if order_data["action"] == "OpenShort":
+    #     if not order_data["mode"] and position_size > 0.0:
+    #         CloseAllLong(order_data, position_data)
+    #         OpenShort(order_data)
+    #     else:
+    #         OpenShort(order_data)
+    # # except Exception as e:
+    # #     print(e)
+    # #     notify.send("เกิดข้อผิดพลาด")
+    #
 
 
 @app.route("/")
@@ -307,12 +322,13 @@ def webhook():
 
 
 if __name__ == "__main__":
+    # app.run(host="0.0.0.0", debug=True)
     test = signal_handle(
         data={
-            "side": "test",
-            "amount": "@0.5",
+            "side": "OpenLong",
+            "amount": "@0.3",
             "symbol": "ETHUSDTPERP",
             "passphrase": "8888",
-            "leverage": "1",
+            "leverage": "100",
         }
     )
