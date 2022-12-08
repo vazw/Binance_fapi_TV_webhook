@@ -1,4 +1,5 @@
 flask
 gunicorn
 python-binance
-requests
+line-notify
+
