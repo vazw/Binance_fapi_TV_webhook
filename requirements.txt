@@ -2,4 +2,5 @@ flask
 gunicorn
 python-binance
 line-notify
+pandas
 
