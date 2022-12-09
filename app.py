@@ -311,7 +311,7 @@ def signal_handle(data):
             else:
                 OpenLong(order_data)
         if order_data["action"] == "OpenShort":
-            if order_data["mode"] and position_size > 0.0:
+            if not order_data["mode"] and position_size > 0.0:
                 CloseAllLong(order_data, position_data)
                 OpenShort(order_data)
             else:
