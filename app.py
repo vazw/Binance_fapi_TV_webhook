@@ -330,6 +330,7 @@ def first_pages():
 def webhook():
     data = json.loads(request.data)
     signal_handle(data)
+    return {"OK": "Done"}
 
 
 if __name__ == "__main__":
