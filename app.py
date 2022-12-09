@@ -65,7 +65,7 @@ def get_position_size(symbol):
         for position in positions
         if float(position["positionAmt"]) != 0
     ]
-    posititon_data = pd.DataFrame(
+    position_data = pd.DataFrame(
         current_position,
         columns=[
             "symbol",
@@ -77,7 +77,6 @@ def get_position_size(symbol):
             "leverage",
         ],
     )
-    position_data = posititon_data.set_index("symbol")
     return position_data
 
 
@@ -155,6 +154,16 @@ def open_order(data, side):
     )
     print(order)
     position_data = get_position_size(data["symbol"])
+    if data["mode"] and len(position_data.index) > 1:
+        if data["action"] == "CloseLong":
+            position_data.drop(index=1, inplace=True)
+        if data["action"] == "OpenLong":
+            position_data.drop(index=0, inplace=True)
+        if data["action"] == "CloseShort":
+            position_data.drop(index=0, inplace=True)
+        if data["action"] == "OpenShort":
+            position_data.drop(index=1, inplace=True)
+    position_data = position_data.set_index("symbol")
     position_size = float(position_data["positionAmt"][data["symbol"]])
     position_entry = float(position_data["entryPrice"][data["symbol"]])
     position_lev = int(position_data["leverage"][data["symbol"]])
@@ -190,13 +199,13 @@ def closeall_order(data, position_data, side):
     print(order)
     margin = position_entry * position_size / position_lev
     balance = check_balance("USDT")
-    profit_loss = (position_data["unRealizedProfit"][data["symbol"]]) * abs(
-        data["amount"] / position_size
-    )
+    profit_loss = float(
+        position_data["unRealizedProfit"][data["symbol"]]
+    ) * abs(float(data["amount"]) / position_size)
     message = (
         f"Binance Bot: {BOT_NAME}\n"
         + f"Coin       : {data['symbol']}\n"
-        + f"Order      : {data['action']}\n"
+        + "Order      : CloseAll\n"
         + f"Amount     : {position_size}\n"
         + f"Margin     : {margin}\n"
         + f"P/L        : {profit_loss} USDT\n"
@@ -253,61 +262,63 @@ def signal_handle(data):
         symbol = symbol[0 : len(symbol) - 4]
     position_mode = client.futures_get_position_mode()
     position_data = get_position_size(symbol)
-    """
-    ปัญหาที่ต้องแกไข
-    symbol
-    ETHUSDT     0.300
-    ETHUSDT    -0.030
-    Name: positionAmt, dtype: object
-    """
-    # position_size = float(position_data["positionAmt"][symbol])
-    print(position_data["positionAmt"][symbol])
-    return
-    # actions = check_actions((data["side"] if ORDER_ENABLE is True else "test"))
-    # amount = check_amount(symbol, data["amount"], position_size, actions)
-    # order_data = {
-    #     "amount_type": data["amount"][0],
-    #     "amount": amount,
-    #     "symbol": symbol,
-    #     "leverage": int(data["leverage"]),
-    #     "action": (data["side"] if ORDER_ENABLE is True else "test"),
-    #     "order_side": actions,
-    #     "mode": position_mode["dualSidePosition"],
-    #     "LongSide": ("LONG" if position_mode["dualSidePosition"] else "BOTH"),
-    #     "ShortSide": (
-    #         "SHORT" if position_mode["dualSidePosition"] else "BOTH"
-    #     ),
-    #     "balance": balance,
-    # }
-    # print(order_data)
-    #
-    # # try:
-    # if order_data["action"] == "CloseLong":
-    #     if position_size > 0.0:
-    #         CloseLong(order_data, position_data)
-    #     else:
-    #         return "No Position : Do Nothing"
-    # if order_data["action"] == "CloseShort":
-    #     if position_size < 0.0:
-    #         CloseShort(order_data, position_data)
-    #     else:
-    #         return "No Position : Do Nothing"
-    # if order_data["action"] == "OpenLong":
-    #     if not order_data["mode"] and position_size < 0.0:
-    #         CloseAllShort(order_data, position_data)
-    #         OpenLong(order_data)
-    #     else:
-    #         OpenLong(order_data)
-    # if order_data["action"] == "OpenShort":
-    #     if not order_data["mode"] and position_size > 0.0:
-    #         CloseAllLong(order_data, position_data)
-    #         OpenShort(order_data)
-    #     else:
-    #         OpenShort(order_data)
-    # # except Exception as e:
-    # #     print(e)
-    # #     notify.send("เกิดข้อผิดพลาด")
-    #
+    position_size = 0.0
+    if position_mode["dualSidePosition"] and len(position_data.index) > 1:
+        if data["side"] == "CloseLong":
+            position_data.drop(index=1, inplace=True)
+        if data["side"] == "OpenLong":
+            position_data.drop(index=0, inplace=True)
+        if data["side"] == "CloseShort":
+            position_data.drop(index=0, inplace=True)
+        if data["side"] == "OpenShort":
+            position_data.drop(index=1, inplace=True)
+        if data["side"] == "test":
+            return
+    position_data = position_data.set_index("symbol")
+    if not position_data.empty:
+        position_size = float(position_data["positionAmt"][symbol])
+    actions = check_actions((data["side"] if ORDER_ENABLE is True else "test"))
+    amount = check_amount(symbol, data["amount"], position_size, actions)
+    order_data = {
+        "amount_type": data["amount"][0],
+        "amount": amount,
+        "symbol": symbol,
+        "leverage": int(data["leverage"]),
+        "action": (data["side"] if ORDER_ENABLE is True else "test"),
+        "order_side": actions,
+        "mode": position_mode["dualSidePosition"],
+        "LongSide": ("LONG" if position_mode["dualSidePosition"] else "BOTH"),
+        "ShortSide": (
+            "SHORT" if position_mode["dualSidePosition"] else "BOTH"
+        ),
+        "balance": balance,
+    }
+    try:
+        if order_data["action"] == "CloseLong":
+            if position_size > 0.0:
+                CloseLong(order_data, position_data)
+            else:
+                return "No Position : Do Nothing"
+        if order_data["action"] == "CloseShort":
+            if position_size < 0.0:
+                CloseShort(order_data, position_data)
+            else:
+                return "No Position : Do Nothing"
+        if order_data["action"] == "OpenLong":
+            if not order_data["mode"] and position_size < 0.0:
+                CloseAllShort(order_data, position_data)
+                OpenLong(order_data)
+            else:
+                OpenLong(order_data)
+        if order_data["action"] == "OpenShort":
+            if order_data["mode"] and position_size > 0.0:
+                CloseAllLong(order_data, position_data)
+                OpenShort(order_data)
+            else:
+                OpenShort(order_data)
+    except Exception as e:
+        print(e)
+        notify.send(f"{BOT_NAME} : เกิดข้อผิดพลาด")
 
 
 @app.route("/")
@@ -322,13 +333,13 @@ def webhook():
 
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", debug=True)
-    test = signal_handle(
-        data={
-            "side": "OpenLong",
-            "amount": "@0.3",
-            "symbol": "ETHUSDTPERP",
-            "passphrase": "8888",
-            "leverage": "100",
-        }
-    )
+    app.run(host="0.0.0.0", debug=True)
+    # test = signal_handle(
+    #     data={
+    #         "side": "OpenShort",
+    #         "amount": "@0.02",
+    #         "symbol": "ETHUSDTPERP",
+    #         "passphrase": "8888",
+    #         "leverage": "100",
+    #     }
+    # )
