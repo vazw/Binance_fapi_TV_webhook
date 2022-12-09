@@ -130,6 +130,7 @@ def close_order(data, position_data, side):
     profit_loss = float(
         position_data["unRealizedProfit"][data["symbol"]]
     ) * abs(float(data["amount"]) / position_size)
+
     message = (
         f"Binance Bot: {BOT_NAME}\n"
         + f"Coin       : {data['symbol']}\n"
@@ -169,6 +170,7 @@ def open_order(data, side):
     position_lev = int(position_data["leverage"][data["symbol"]])
     margin = position_entry * position_size / position_lev
     balance = check_balance("USDT")
+
     message = (
         f"Binance Bot: {BOT_NAME}\n"
         + f"Coin       : {data['symbol']}\n"
@@ -202,6 +204,7 @@ def closeall_order(data, position_data, side):
     profit_loss = float(
         position_data["unRealizedProfit"][data["symbol"]]
     ) * abs(float(close_amount) / position_size)
+
     message = (
         f"Binance Bot: {BOT_NAME}\n"
         + f"Coin       : {data['symbol']}\n"
