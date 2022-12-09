@@ -83,8 +83,8 @@ def get_position_size(symbol) -> pd.DataFrame:
 def check_amount(symbol, order_amount, position_amount, action) -> float:
     qty_precision = 0
     m = len(order_amount)
-    bids = float(client.futures_orderbook_ticker(symbol="BTCUSDT")["bidPrice"])
-    asks = float(client.futures_orderbook_ticker(symbol="BTCUSDT")["askPrice"])
+    bids = float(client.futures_orderbook_ticker(symbol=symbol)["bidPrice"])
+    asks = float(client.futures_orderbook_ticker(symbol=symbol)["askPrice"])
     bidask = bids if action == "SELL" else asks
     qty_precision = (
         int(precistion["quantityPrecision"])
@@ -110,7 +110,7 @@ def check_balance(fiat) -> float:
         for asset in client.futures_account_balance()
         if asset["asset"] == fiat
     ).__next__()
-    return balance
+    return round(float(balance), 2)
 
 
 def close_order(data, position_data, side):
@@ -136,10 +136,10 @@ def close_order(data, position_data, side):
         + f"Coin       : {data['symbol']}\n"
         + f"Order      : {data['action']}\n"
         + f"Amount     : {position_size}\n"
-        + f"Margin     : {margin}\n"
-        + f"P/L        : {profit_loss} USDT\n"
+        + f"Margin     : {round(margin, 2)}\n"
+        + f"P/L        : {round(profit_loss, 2)} USDT\n"
         + f"Leverage   : X{position_lev}\n"
-        + f"Balance    : {balance} USDT"
+        + f"Balance    : {round(balance, 2)} USDT"
     )
     return notify.send(message=message, sticker_id=1991, package_id=446)
 
@@ -176,10 +176,10 @@ def open_order(data, side):
         + f"Coin       : {data['symbol']}\n"
         + f"Order      : {data['action']}\n"
         + f"Amount     : {position_size}\n"
-        + f"Margin     : {margin}\n"
+        + f"Margin     : {round(margin, 2)}\n"
         + f"Price      : {position_entry}\n"
         + f"Leverage   : X{position_lev}\n"
-        + f"Balance    : {balance} USDT"
+        + f"Balance    : {round(balance, 2)} USDT"
     )
     return notify.send(message=message, sticker_id=1997, package_id=446)
 
@@ -210,10 +210,10 @@ def closeall_order(data, position_data, side):
         + f"Coin       : {data['symbol']}\n"
         + "Order      : CloseAll\n"
         + f"Amount     : {position_size}\n"
-        + f"Margin     : {margin}\n"
-        + f"P/L        : {profit_loss} USDT\n"
+        + f"Margin     : {round(margin, 2)}\n"
+        + f"P/L        : {round(profit_loss, 2)} USDT\n"
         + f"Leverage   : X{position_lev}\n"
-        + f"Balance    : {balance} USDT"
+        + f"Balance    : {round(balance, 2)} USDT"
     )
     return notify.send(message=message, sticker_id=1988, package_id=446)
 
