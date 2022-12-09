@@ -659,7 +659,7 @@ def webhook():
         msgS = ""
         msgB = ""
         # OneWay
-        if currentmode["dualSidePosition"] != True:
+        if currentmode["dualSidePosition"] is not True:
             amount = float(
                 client.futures_position_information(symbol=symbol)[0][
                     "positionAmt"
