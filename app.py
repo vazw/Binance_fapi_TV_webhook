@@ -278,6 +278,7 @@ def signal_handle(data) -> str:
         position_size = float(position_data["positionAmt"][symbol])
     actions = check_actions((data["side"] if ORDER_ENABLE is True else "test"))
     amount = check_amount(symbol, data["amount"], position_size, actions)
+
     order_data = {
         "amount_type": data["amount"][0],
         "amount": amount,
@@ -292,36 +293,45 @@ def signal_handle(data) -> str:
         ),
         "balance": balance,
     }
-    try:
 
+    try:
+        isin_position = True if position_size != 0.0 else False
         if order_data["action"] == "CloseLong":
-            if position_size > 0.0:
+            if position_size > 0.0 and isin_position:
                 CloseLong(order_data, position_data)
                 return "Order Done"
             else:
                 return "No Position : Do Nothing"
         elif order_data["action"] == "CloseShort":
-            if position_size < 0.0:
+            if position_size < 0.0 and isin_position:
                 CloseShort(order_data, position_data)
                 return "Order Done"
             else:
                 return "No Position : Do Nothing"
         elif order_data["action"] == "OpenLong":
-            if not order_data["mode"] and position_size < 0.0:
+            if (
+                not order_data["mode"]
+                and position_size < 0.0
+                and isin_position
+            ):
                 CloseAllShort(order_data, position_data)
                 OpenLong(order_data)
                 return "Order Done"
-            elif position_size > 0.0:
+            elif position_size > 0.0 and isin_position:
                 return "Already in position : Do Nothing"
             else:
                 OpenLong(order_data)
                 return "Order Done"
         elif order_data["action"] == "OpenShort":
-            if not order_data["mode"] and position_size > 0.0:
+            if (
+                not order_data["mode"]
+                and position_size > 0.0
+                and isin_position
+            ):
                 CloseAllLong(order_data, position_data)
                 OpenShort(order_data)
                 return "Order Done"
-            elif position_size > 0.0:
+            elif position_size < 0.0 and isin_position:
                 return "Already in position : Do Nothing"
             else:
                 OpenShort(order_data)
@@ -354,10 +364,10 @@ if __name__ == "__main__":
 
     # test = signal_handle(
     #     data={
-    #         "side": "OpenShort",
-    #         "amount": "@0.01",
-    #         "symbol": "BTCUSDTPERP",
+    #         "side": "CloseShort",
+    #         "amount": "@1780",
+    #         "symbol": "NKNUSDTPERP",
     #         "passphrase": "8888",
-    #         "leverage": "100",
+    #         "leverage": "20",
     #     }
     # )
