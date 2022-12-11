@@ -13,6 +13,7 @@
 
 import json
 import os
+import time
 
 import pandas as pd
 from binance.client import Client
@@ -295,6 +296,7 @@ def signal_handle(data) -> str:
     }
 
     try:
+
         isin_position = True if position_size != 0.0 else False
         if order_data["action"] == "CloseLong":
             if position_size > 0.0 and isin_position:
@@ -356,18 +358,21 @@ def webhook():
     data = json.loads(request.data)
     respone = signal_handle(data)
     notify.send(f"{respone}")
+    time.sleep(1)
     return {"OK": "Done"}
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
+    # print(get_position_size("OCEANUSDT"))
+    #
     # test = signal_handle(
     #     data={
-    #         "side": "CloseShort",
-    #         "amount": "@1780",
-    #         "symbol": "NKNUSDTPERP",
+    #         "side": "OpenLong",
+    #         "amount": "@574",
+    #         "symbol": "OCEANUSDT",
     #         "passphrase": "8888",
     #         "leverage": "20",
     #     }
     # )
+    # print(test)
