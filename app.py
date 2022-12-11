@@ -13,7 +13,6 @@
 
 import json
 import os
-import time
 
 import pandas as pd
 from binance.client import Client
@@ -243,6 +242,46 @@ def CloseAllShort(data, position_data):
     return closeall_order(data, position_data, data["ShortSide"])
 
 
+def ordering(order_data, position_data, position_size):
+    isin_position = True if position_size != 0.0 else False
+    if order_data["action"] == "CloseLong":
+        if position_size > 0.0 and isin_position:
+            CloseLong(order_data, position_data)
+            return "Order Done"
+        else:
+            return "No Position : Do Nothing"
+    elif order_data["action"] == "CloseShort":
+        if position_size < 0.0 and isin_position:
+            CloseShort(order_data, position_data)
+            return "Order Done"
+        else:
+            return "No Position : Do Nothing"
+    elif order_data["action"] == "OpenLong":
+        if not order_data["mode"] and position_size < 0.0 and isin_position:
+            CloseAllShort(order_data, position_data)
+            OpenLong(order_data)
+            return "Order Done"
+        elif position_size > 0.0 and isin_position:
+            return "Already in position : Do Nothing"
+        else:
+            OpenLong(order_data)
+            return "Order Done"
+    elif order_data["action"] == "OpenShort":
+        if not order_data["mode"] and position_size > 0.0 and isin_position:
+            CloseAllLong(order_data, position_data)
+            OpenShort(order_data)
+            return "Order Done"
+        elif position_size < 0.0 and isin_position:
+            return "Already in position : Do Nothing"
+        else:
+            OpenShort(order_data)
+            return "Order Done"
+    elif order_data["action"] == "test":
+        return "test"
+    else:
+        return "Nothin to do"
+
+
 def signal_handle(data) -> str:
     """
     Sample payload =  '{"side":"OpenShort","amount":"@0.006","symbol":"BTCUSDTPERP","passphrase":"1945","leverage":"125"}' # noqa:
@@ -296,53 +335,8 @@ def signal_handle(data) -> str:
     }
 
     try:
-
-        isin_position = True if position_size != 0.0 else False
-        if order_data["action"] == "CloseLong":
-            if position_size > 0.0 and isin_position:
-                CloseLong(order_data, position_data)
-                return "Order Done"
-            else:
-                return "No Position : Do Nothing"
-        elif order_data["action"] == "CloseShort":
-            if position_size < 0.0 and isin_position:
-                CloseShort(order_data, position_data)
-                return "Order Done"
-            else:
-                return "No Position : Do Nothing"
-        elif order_data["action"] == "OpenLong":
-            if (
-                not order_data["mode"]
-                and position_size < 0.0
-                and isin_position
-            ):
-                CloseAllShort(order_data, position_data)
-                OpenLong(order_data)
-                return "Order Done"
-            elif position_size > 0.0 and isin_position:
-                return "Already in position : Do Nothing"
-            else:
-                OpenLong(order_data)
-                return "Order Done"
-        elif order_data["action"] == "OpenShort":
-            if (
-                not order_data["mode"]
-                and position_size > 0.0
-                and isin_position
-            ):
-                CloseAllLong(order_data, position_data)
-                OpenShort(order_data)
-                return "Order Done"
-            elif position_size < 0.0 and isin_position:
-                return "Already in position : Do Nothing"
-            else:
-                OpenShort(order_data)
-                return "Order Done"
-        elif order_data["action"] == "test":
-            return "test"
-        else:
-            return "Nothin to do"
-
+        message = ordering(order_data, position_data, position_size)
+        return message
     except Exception as e:
         print(e)
         return f"{BOT_NAME} : เกิดข้อผิดพลาด\n{e}"
@@ -358,7 +352,6 @@ def webhook():
     data = json.loads(request.data)
     respone = signal_handle(data)
     notify.send(f"{respone}")
-    time.sleep(1)
     return {"OK": "Done"}
 
 
